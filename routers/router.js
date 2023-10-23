@@ -2,13 +2,18 @@ const express = require('express');
 const router = express.Router();
 const toDoListPage = require('../controller/pageCtrl');
 const toDoList = require('../controller/listCtrl');
+const toDoitems = require('../controller/itemsCtrl');
+const user = require('../controller/userCtrl');
 
 / 頁面 /;
-//登入頁
+//登入頁 pass
 router.get('/LoginMyToDoListPage', toDoListPage.toDolistFrontPage);
 
+//註冊頁
+router.get('/registerMyToDoListPage');
+
 //個人to-do list
-router.get('/MyToDoList', toDoList.createToDoListtoDolist);
+router.get('/MyToDoList', toDoListPage.MyToDoListPage);
 
 //個人to-do items
 router.get('/MyToDoItems', (req, res) => {
@@ -16,48 +21,42 @@ router.get('/MyToDoItems', (req, res) => {
 });
 
 / 頁面功能 /;
-//上一頁 {-}
+//登入 pass
+router.post('/LoginMyToDoList', user.login);
+
+//登出
+router.get('/LogOutMyToDoList', user.logOut);
+
+//註冊
+router.post('/registerMyToDoList', user.register);
+
+//換頁
 router.put('/MyToDoListBeforePage', (req, res) => {
   res.send('分頁查詢 {-}');
 });
 
-//下一頁 {＋}
-router.put('/MyToDoListNextPage', (req, res) => {
-  res.send('分頁查詢 {＋}');
-});
-
 / 清單功能 /;
 //新增清單
-router.post('/createMyToDoList', (req, res) => {
-  res.send('新增清單');
-});
+router.post('/createMyToDoList', toDoList.createToDoList);
 
 //更新清單
-router.put('/updateMyToDoList', (req, res) => {
-  res.send('更新清單');
-});
+router.put('/updateMyToDoList', toDoList.updatedToDoList);
 
 //刪除清單
-router.put('/removeToDoList', (req, res) => {
-  res.send('刪除清單');
-});
+router.delete('/removeToDoList', toDoList.deleteToDoList);
 
 //清單tag
 //清單tag篩選
 
 / 項目功能 /;
 //新增項目
-router.post('/createMyToDoItems', (req, res) => {
-  res.send('Welcome');
-});
+router.post('/createMyToDoItems', toDoitems.createToDoItems);
 
 //更新項目
-router.put('/updateMyToDoItems', (req, res) => {
-  res.send('更新項目');
-});
+router.put('/updateMyToDoItems', toDoitems.updateToDoItems);
 
 //刪除項目
-router.put('/removeMyToDoItems', (req, res) => {
+router.delete('/removeMyToDoItems', (req, res) => {
   res.send('刪除項目');
 });
 
