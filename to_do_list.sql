@@ -6,6 +6,8 @@ SELECT * FROM`listData`;
 SELECT * FROM`itemsData`;
 SELECT * FROM`listTag`;
 
+UPDATE `listData` SET `listTotal` = 1 WHERE `id` = 12;
+
 create table `userData` (
 `id` int auto_increment primary key, -- 使用者ＩＤ
 `account` varchar(20) NOT NULL, -- 帳號
@@ -30,13 +32,16 @@ FOREIGN KEY (`userId`) REFERENCES `userData`(`id`) ON DELETE CASCADE -- 外鍵us
 create table `itemsData` (
 `id` int auto_increment primary key, -- 項目ＩＤ
 `listId` int, -- 清單ＩＤ(FK)
-`itemsSortOder` int, -- 項目排序
+`itemsSortOder` int default 0, -- 項目排序
 `itemsTitle` varchar(50) NOT NULL, -- 項目標題
-`itemsSchedule` int default 0, -- 項目完成狀態
+`itemsSchedule` boolean default false, -- 項目完成狀態
 `itemsCreateTime` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 項目創建時間
 `itemsUpdateTime` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 項目最後更新時間
 FOREIGN KEY (`listId`) REFERENCES `listData`(`id`) ON DELETE CASCADE -- 外鍵listId子關聯性
 );
+
+
+
 
 create table `listTag`(
 `id` int auto_increment primary key, -- 標籤ＩＤ
