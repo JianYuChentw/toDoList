@@ -15,10 +15,8 @@ router.get('/registerMyToDoListPage');
 //個人to-do list
 router.get('/MyToDoList', toDoListPage.MyToDoListPage);
 
-//個人to-do items
-router.get('/MyToDoItems', (req, res) => {
-  res.send('個人to-do items');
-});
+//個人to-do items(清單頁內)
+router.get('/MyToDoItems', toDoitems.readToDoItems);
 
 / 頁面功能 /;
 //登入 pass
@@ -52,17 +50,16 @@ router.delete('/removeToDoList', toDoList.deleteToDoList);
 //新增項目
 router.post('/createMyToDoItems', toDoitems.createToDoItems);
 
-//更新項目
+//更新項目內容
 router.put('/updateMyToDoItems', toDoitems.updateToDoItems);
 
-//刪除項目
-router.delete('/removeMyToDoItems', (req, res) => {
-  res.send('刪除項目');
-});
+//更新項目進度
+router.put('/updateMyToDoItemsSchedule', toDoitems.updatedItemsSchedule);
 
-// 項目次序異動
-router.put('/MyToDoItemsOrderMove', (req, res) => {
-  res.send('項目次序異動');
-});
+//刪除項目
+router.delete('/removeMyToDoItems', toDoitems.deleteToDoItems);
+
+//項目次序異動
+router.put('/MyToDoItemsOrderMove', toDoitems.changeItemSort);
 
 module.exports = router;

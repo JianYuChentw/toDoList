@@ -1,14 +1,41 @@
 const { connection } = require('../data/data');
 
+//序列篩選
+function sortItemsByOrder(items) {
+  // 依照當前序列整理
+  items.sort((a, b) => a.itemsSortOder - b.itemsSortOder);
+
+  // 如果有相同的 itemsSortOder，再按 上次更新時間 降序排列
+  items.sort((a, b) => {
+    if (a.itemsSortOder === b.itemsSortOder) {
+      return new Date(b.itemsUpdateTime) - new Date(a.itemsUpdateTime);
+    }
+    return 0;
+  });
+
+  return items;
+}
+
 // 新增
 async function createItems(listId, itemsTitle) {
   try {
+    const selectlistTotal = 'SELECT listTotal FROM listData WHERE id = ?';
+
+    const [selectTotalResult] = await connection.query(selectlistTotal, [
+      listId,
+    ]);
+    const nowlistTotal = selectTotalResult[0].listTotal;
+
     const insertQuery =
-      'INSERT INTO itemsData (listId, itemsTitle) VALUES (?, ?)';
-    const [result] = await connection.execute(insertQuery, [
+      'INSERT INTO itemsData (listId, itemsTitle, itemsSortOder) VALUES (?, ?, ?)';
+    [result] = await connection.execute(insertQuery, [
       listId,
       itemsTitle,
+      nowlistTotal,
     ]);
+
+    console.log(result);
+
     return result.affectedRows === 1;
   } catch (error) {
     console.error('創建項目錯誤:', error);
@@ -21,9 +48,16 @@ async function readItems(listId) {
   try {
     const selectQuery = 'SELECT * FROM itemsData WHERE listId = ?';
     const [rows] = await connection.execute(selectQuery, [listId]);
-
+    const sortFilter = sortItemsByOrder(rows);
+    const transformedResults = sortFilter.map((item) => ({
+      ...item,
+      itemsSchedule: item.itemsSchedule === 1,
+      itemsCreateTime: new Date(item.itemsCreateTime).toLocaleString(),
+      itemsUpdateTime: new Date(item.itemsUpdateTime).toLocaleString(),
+    }));
+    console.log(transformedResults);
     if (rows.length > 0) {
-      return rows;
+      return transformedResults;
     } else {
       return null;
     }
@@ -34,16 +68,13 @@ async function readItems(listId) {
 }
 
 // 更新
-async function updatedItems(itemsId, listId, itemsTitle) {
+async function updatedItems(itemsId, itemsTitle) {
   try {
-    const updateQuery =
-      'UPDATE itemsData SET itemsTitle = ? WHERE id = ? AND listId = ?';
+    const updateQuery = 'UPDATE itemsData SET itemsTitle = ? WHERE id = ?';
     const [result] = await connection.execute(updateQuery, [
       itemsTitle,
       itemsId,
-      listId,
     ]);
-    console.log(result);
     if (result.affectedRows > 0) {
       return true;
     } else {
@@ -56,7 +87,6 @@ async function updatedItems(itemsId, listId, itemsTitle) {
 }
 
 //更新項目數量
-
 async function updatedItemsSchedule(listId, n) {
   try {
     const selectQuery = 'SELECT listTotal FROM listData WHERE id = ?';
@@ -89,12 +119,59 @@ async function updatedItemsSchedule(listId, n) {
   }
 }
 
-// 刪除
-async function deleteItems([itemsId], listId) {
+//項目進度異動(Completed <-> Unfinished)
+async function ItemsSchedule(itemId) {
   try {
-    const deleteQuery = 'DELETE FROM itemsData WHERE userId = ? AND id IN (?)';
-    const [result] = await connection.execute(deleteQuery, [listId, itemsId]);
+    const itemsSchedule = 'SELECT itemsSchedule FROM itemsData WHERE id = ?';
+    const [itemsScheduleResult] = await connection.execute(itemsSchedule, [
+      itemId,
+    ]);
+    const selectListId = 'SELECT listId FROM itemsData WHERE id = ?';
+    const [selectResult] = await connection.execute(selectListId, [itemId]);
+    let newSchedule;
+    const nowSchedule = itemsScheduleResult[0].itemsSchedule;
+    if (nowSchedule === 0) {
+      newSchedule = 1;
+      const updateQuery =
+        'UPDATE listData SET listFinsh = listFinsh + 1 WHERE id = ?';
+      const [updateResult] = await connection.execute(updateQuery, [
+        selectResult[0].listId,
+      ]);
+    }
+    if (nowSchedule === 1) {
+      newSchedule = 0;
+      const updateQuery =
+        'UPDATE listData SET listFinsh = listFinsh - 1 WHERE id = ?';
+      const [updateResult] = await connection.execute(updateQuery, [
+        selectResult[0].listId,
+      ]);
+    }
+    const updateQuery = 'UPDATE itemsData SET itemsSchedule = ? WHERE id = ?';
+    const [result] = await connection.execute(updateQuery, [
+      newSchedule,
+      itemId,
+    ]);
     if (result.affectedRows > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error('更新失敗:', error);
+    return false;
+  }
+}
+
+// 刪除
+async function deleteItems(itemId) {
+  console.log(itemId);
+  try {
+    const selectListId = 'SELECT listId FROM itemsData WHERE id = ?';
+    const [selectResult] = await connection.execute(selectListId, [itemId]);
+    const deleteQuery = 'DELETE FROM itemsData WHERE id = ?';
+    const [result] = await connection.execute(deleteQuery, [itemId]);
+    if (result.affectedRows > 0) {
+      updatedItemsSchedule(selectResult[0].listId, -1);
       return true;
     } else {
       return false;
@@ -130,6 +207,30 @@ async function createItemsAndListSchedule(listId, itemsTitle) {
   }
 }
 
+//項目序列異動
+async function updateSortOrder(id, sortNumber) {
+  try {
+    const updateSort = 'UPDATE itemsData SET itemsSortOder = ? WHERE id = ?';
+    const [updateResult] = await connection.execute(updateSort, [
+      sortNumber,
+      id,
+    ]);
+    if (updateResult.affectedRows > 0) {
+      const selectListId = 'SELECT listId FROM itemsData WHERE id = ?';
+      const [selectResult] = await connection.execute(selectListId, [id]);
+      console.log(selectResult);
+      const newSort = await readItems(selectResult[0].listId);
+      console.log(newSort);
+      return newSort;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error('更新失敗:', error);
+    return false;
+  }
+}
+
 module.exports = {
   createItems,
   readItems,
@@ -137,4 +238,6 @@ module.exports = {
   deleteItems,
   updatedItemsSchedule,
   createItemsAndListSchedule,
+  updateSortOrder,
+  ItemsSchedule,
 };

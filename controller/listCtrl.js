@@ -27,17 +27,16 @@ async function updatedToDoList(req, res) {
   const { listId, listTitle } = req.body;
   const token = req.header.Authorization;
   const access = tools.verifyToken(token);
-  if (listId !== Number) {
+  if (access === null) {
+    return res.json({ loginStatus: false });
+  }
+  if (isNaN(listId)) {
     return res
       .status(200)
-      .json({ removeList: false, message: '輸入非正整數型別' });
+      .json({ updatedList: false, message: '輸入非正整數型別' });
   }
   try {
-    const updateResult = await listModel.updatedList(
-      listId,
-      access.userId,
-      listTitle
-    );
+    const updateResult = await listModel.updatedList(listId, listTitle);
     if (!updateResult) {
       return res
         .status(200)

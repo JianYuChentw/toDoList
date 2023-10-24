@@ -55,34 +55,41 @@
     `HTML 內容（待辦清單頁面，可瀏覽清單及項目，不允許編輯項目）`
     ```json
     {
-        "toDoList":[{
-            "listId":1, // Int
-            "listTitle":"待辦清單1", //Str
-            "listCreatTime":"2023-10-16", //datetime
-            "listLastUpDateTime":"2023-10-16", //datetime
-            "itemsFinsh":5, //Int
-            "itemsUndo":5, //Int
-            "itemsTotal":10, //Int
-            "toDoitems":[{
-                "itemsTitle":"待辦項目1"},{ //Str
-                "itemsTitle":"待辦項目2"} //Str
-                ],  //Array
-            },{
-            "listTitle":"待辦清單2", //Str
-            "listCreatTime":"2023-10-16", //datetime
-            "listLastUpDateTime":"2023-10-16", //datetime
-            "itemsFinsh":5, //Int
-            "itemsUndo":5, //Int
-            "itemsTotal":10, //Int
-            "toDoitems":[{
-                "itemsTitle":"待辦項目1"},{ //Str
-                "itemsTitle":"待辦項目2"} //Str
-                ], //Array
-            },
+      "loginStatus":true, //Boolean
+      "toDoList":[{
+          "id":1, // Int
+          "listTitle":"待辦清單1", //String
+          "listCreatTime":"2023/10/24 上午9:02:23", //datetime
+          "listLastUpDateTime":"2023/10/24 上午10:04:00", //datetime
+          "itemsFinsh":5, //Int
+          "itemsUndo":5, //Int
+          "itemsTotal":10, //Int
+          "toDoitems":[{
+              "itemsTitle":"待辦項目1"},{ //String
+              "itemsTitle":"待辦項目2"} //String
+              ],  //Array
+          },{
+          "id":2, // Int
+          "listTitle":"待辦清單2", //String
+          "listCreatTime":"2023/10/24 上午9:04:54", //datetime
+          "listLastUpDateTime":"2023/10/24 上午10:02:48", //datetime
+          "itemsFinsh":5, //Int
+          "itemsUndo":5, //Int
+          "itemsTotal":10, //Int
+          "toDoitems":[{
+              "itemsTitle":"待辦項目1"},{ //String
+              "itemsTitle":"待辦項目2"} //String
+              ], //Array
+          },
         ],  //Array
-        "nowPage":1, //Int    
-        "totlePage":1, //Int    
+      "nowPage":1, //Int    
+      "totlePage":1, //Int    
     }
+    or
+    {
+        "loginStatus": false, //Boolean
+        "message": "非登入狀態" //String
+      }
     ```
 
 - **Error Response:**
@@ -92,15 +99,16 @@
   - **Code:** 401 <br />
     **Content:** 
     ```json
-      {
-        "loginStatus": false //Boolean
-      }
+    {
+      "gettoDoList":false, //Boolean
+      "message":"伺服器錯誤" //String
+    }
     ```
 
 
 # **單一清單頁**
 
->指定清單瀏覽
+>指定清單瀏覽，會展現內含項目
 
 - **URL**
   /MyToDoList/:listTitle
@@ -121,23 +129,28 @@
     >ItemsSchedule，true為已完成,false為未完成
   - **Code:** 200 <br />
     **Content:**
-    `HTML 內容（指定清單頁面，顯示項目詳細內容）`
+    `（指定清單頁面，顯示項目詳細內容）`
     ```json
-    {
-        "toDoitems":[{
-            "itemsId":1, //Num
-            "itemsTitle":"待辦項目1", //Str
-            "ItemsSchedule":true, //Boolean
-            "ItemsCreatTime":"2023-10-16", //DateTime
-            "ItemsLastUpDateTime":"2023-10-16", //DateTime
-            },{
-            "itemsId":2, //Num
-            "itemsTitle":"待辦項目2", //Str
-            "ItemsSchedule":true, //Boolean
-            "ItemsCreatTime":"2023-10-16", //DateTime
-            "ItemsLastUpDateTime":"2023-10-16", //DateTime
-            } 
-        ], //Array
+    {   
+      "loginStatus":true, //Boolean
+      "toDoitems":[{
+          "id":1, //Num
+          "listId":1, //Num
+          "itemsSortOder": 3,//Num
+          "itemsTitle":"待辦項目1", //String
+          "ItemsSchedule":true, //Boolean
+          "ItemsCreatTime":"2023/10/24 上午9:02:23", //DateTime
+          "ItemsLastUpDateTime":"2023/10/24 上午10:04:00", //DateTime
+          },{
+          "id":2, //Num
+          "listId":1, //Num
+          "itemsSortOder": 4,//Num
+          "itemsTitle":"待辦項目2", //String
+          "ItemsSchedule":true, //Boolean
+          "ItemsCreatTime":"2023/10/24 上午9:04:54", //DateTime
+          "ItemsLastUpDateTime":"2023/10/24 上午10:02:48", //DateTime
+           } 
+       ], //Array
     }
     ```
 - **Error Response:**
@@ -148,7 +161,8 @@
     **Content:** 
     ```json
       {
-        "loginStatus": false //Boolean
+        "loginStatus": false, //Boolean
+        "message": "非登入狀態" //String
       }
     ```
 
@@ -172,8 +186,8 @@
 
     ```json
       {
-      "account": "NianYaoBro", //Str
-      "password": "password123" //Str
+      "account": "NianYaoBro", //String
+      "password": "password123" //String
       }
     ```
 
@@ -185,7 +199,8 @@
     <br />
     ```json
       {
-      "loginStatus":true //Boolean
+      "loginStatus":true, //Boolean
+      "message": "登入成功" //String
       }
     ```
 
@@ -196,23 +211,104 @@
     `(登入失敗)`
     ```json
       {
-      "loginStatus":false //Boolean
+      "loginStatus":false, //Boolean
+      "message": "登入失敗,帳號或密碼有誤！" //String
       }
     ```
-- **Error Response:**
 
-  >未登入狀態
+## **註冊**
 
-  - **Code:** 401 <br />
-    **Content:** 
+>輸入帳號、密碼註冊為會員
+
+- **URL**
+  >/registerMyToDoList
+
+ **Method:**
+
+  `POST`
+- **URL Params**
+
+  `none`
+
+- **Required:**
+      **Body:**
+
     ```json
       {
-        "loginStatus": false //Boolean
+      "account": "NianYaoBro", //String
+      "password": "password123" //String
       }
     ```
 
-## **上一頁**
->前往上一頁
+- **Success Response:**
+  >註冊成功
+  - **Code:** 200 <br />
+    **Content:**
+    `註冊成功)`
+    <br />
+    ```json
+      {
+      "registerResult":true, //Boolean
+      "message": "註冊成功" //String
+      }
+    ```
+
+- **Error Response:**
+  >註冊失敗
+  - **Code:** 401 <br />
+    **Content:**
+    `(註冊失敗)`
+    ```json
+      {
+      "registerResult":false, //Boolean
+      "message": "帳號已存在" //String
+      }
+    ```
+
+## **登出**
+
+>登出會員
+
+- **URL**
+  /logOutMyToDoList
+
+- **Method:**
+
+  `GET`
+
+- **URL Params**
+
+  `none`
+
+-  **Required:**
+
+   `none`
+
+- **Success Response:**
+    >登出會員
+  - **Code:** 200 <br />
+    **Content:**
+    `登出成功`
+    ```json
+    {
+     "oginStatus": true, //Boolean
+      "message": "登出成功" //String
+    }
+    ```
+- **Error Response:**
+  >已經是登出狀態，或憑證過期
+  - **Code:** 401 <br />
+    **Content:**
+    `(已登出狀態)`
+    ```json
+      {
+      "registerResult":false, //Boolean
+      "message": "非登入狀態" //String
+      }
+    ```
+
+## **換頁**
+>切換頁面
 
 - **URL**
 /MyToDoListBeforePage
@@ -236,26 +332,26 @@
     ```json
     {
         "toDoList":[{
-            "listTitle":"待辦清單1", //Str
+            "listTitle":"待辦清單1", //String
             "listCreatTime":"2023-10-16", //DateTime
             "listLastUpDateTime":"2023-10-16", //DateTime
             "itemsFinsh":5, //Int
             "itemsUndo":5, //Int
             "itemsTotal":10, //Int
             "toDoitems":[{
-                "itemsTitle":"待辦項目1"},{ //Str
-                "itemsTitle":"待辦項目2"} //Str
+                "itemsTitle":"待辦項目1"},{ //String
+                "itemsTitle":"待辦項目2"} //String
                 ],  //Array
             },{
-            "listtitle":"待辦清單2", //Str
+            "listtitle":"待辦清單2", //String
             "listCreatTime":"2023-10-16", //DateTime
             "listLastUpDateTime":"2023-10-16", //DateTime
             "itemsFinsh":5, //Int
             "itemsUndo":5, //Int
             "itemsTotal":10, //Int
             "toDoitems":[{
-                "itemsTitle":"待辦項目1"},{ //Str
-                "itemsTitle":"待辦項目2"} //Str
+                "itemsTitle":"待辦項目1"},{ //String
+                "itemsTitle":"待辦項目2"} //String
                 ], //Array
             },
         ],  //Array
@@ -272,73 +368,8 @@
     **Content:** 
     ```json
       {
-        "loginStatus": false //Boolean
-      }
-    ```
-
-
-## **下一頁**
->前往下一頁
-
-- **URL**
-/MyToDoListNextPage
-
-- **Method:**
-
-  `PUT`
-
-- **URL Params**
-
-  `none`
-
--  **Required:**
-
-- **Success Response:**
-
-  - **Code:** 200 <br />
-    **Content:**
-
-    `(返回下一頁資料)`
-    ```json
-    {
-        "toDoList":[{
-            "listTitle":"待辦清單1", //Str
-            "listCreatTime":"2023-10-16", //DateTime
-            "listLastUpDateTime":"2023-10-16", //DateTime
-            "itemsFinsh":5, //Int
-            "itemsUndo":5, //Int
-            "itemsTotal":10, //Int
-            "toDoitems":[{
-                "itemsTitle":"待辦項目1"},{ //Str
-                "itemsTitle":"待辦項目2"} //Str
-                ],  //Array
-            },{
-            "listtitle":"待辦清單2", //Str
-            "listCreatTime":"2023-10-16", //DateTime
-            "listLastUpDateTime":"2023-10-16", //DateTime
-            "itemsFinsh":5, //Int
-            "itemsUndo":5, //Int
-            "itemsTotal":10, //Int
-            "toDoitems":[{
-                "itemsTitle":"待辦項目1"},{ //Str
-                "itemsTitle":"待辦項目2"} //Str
-                ], //Array
-            },
-        ],  //Array
-        "nowPage":2, //Int    
-        "totlePage":3, //Int    
-    }
-    ```
-
-- **Error Response:**
-
-  >未登入狀態
-
-  - **Code:** 401 <br />
-    **Content:** 
-    ```json
-      {
-        "loginStatus": false //Boolean
+        "loginStatus": false, //Boolean
+        "message":"非登入狀態" //Stringing
       }
     ```
 
@@ -363,7 +394,7 @@
 
     ```json
       {
-        "itemsTitle":"我是新來的" //Str  
+        "itemsTitle":"我是新來的" //String  
       }
     ```
 
@@ -371,22 +402,29 @@
   >新增成功
   - **Code:** 200 <br />
     **Content:**
-    `(返回成功提示)`
+    `(返回成功提示或失敗提示)`
     <br />
     ```json
       {
-        "createList":true //Boolean
+        "createList":true, //Boolean
+        "message":"新增清單成功" //Stringing
+      }
+      or
+      {
+        "createList":false, //Boolean
+        "message":"新增清單失敗" //Stringing
       }
     ```
 
 - **Error Response:**
-  >新增失敗
-  - **Code:** 401 <br />
+  >發生錯誤
+  - **Code:** 500 <br />
     **Content:**
-    `返回失敗提示`
+    `返回錯舞提示`
     ```json
       {
-        "createList":false //Boolean
+        "createList":true, //Boolean
+        "message":"伺服器錯誤" //Stringing
       }
     ```
 
@@ -411,7 +449,7 @@
     ```json
       { 
         "listId":1, //Num
-        "itemsTitle":"我不是新來的"  //Str  
+        "listTitle":"我不是新來的"  //String  
       }
     ```
 
@@ -419,29 +457,36 @@
   >更新成功
   - **Code:** 200 <br />
     **Content:**
-    `(返回成功提示)`
+    `(返回成功或失敗提示)`
     <br />
     ```json
       {
-        "updateList":true  //Boolean
+        "updateList":true,  //Boolean
+        "message": "更新清單成功" //String
+      }
+      or
+      {
+        "updateList":true,  //Boolean
+        "message": "更新清單失敗" //String
       }
     ```
 
 - **Error Response:**
-  >更新失敗
-  - **Code:** 401 <br />
+  >發生錯誤
+  - **Code:** 500 <br />
     **Content:**
     `返回失敗提示`
     ```json
       {
-        "updateList":false //Boolean
+      "updateList":true,  //Boolean
+      "message": "伺服器錯誤" //String
       }
     ```
 
 
 ## **刪除待辦清單**
 
->刪除"清單"
+>刪除"清單"(含批次刪除)
 
   **URL**
   >/removeToDoList
@@ -459,7 +504,9 @@
 
     ```json
       {
-        "listId":1, //Num
+        "listId":[
+          1 //Num
+          ], //Array
       }
     ```
 
@@ -467,23 +514,31 @@
   >刪除成功
   - **Code:** 200 <br />
     **Content:**
-    `(返回成功提示)`
+    `(返回成功提示或返回失敗提示)`
     <br />
     ```json
       {
-        "removeList":true  //Boolean
+        "removeList":true,  //Boolean
+        "message": "刪除清單成功"
+      }
+      or
+      {
+        "removeList":true,  //Boolean
+        "message": "刪除清單失敗"
       }
     ```
 
 - **Error Response:**
-  >刪除失敗
-  - **Code:** 401 <br />
+  >發生錯誤
+  - **Code:** 500 <br />
     **Content:**
-    `返回失敗提示`
+    `返回錯誤提示`
     ```json
       {
-        "removeList":false //Boolean
+        "removeList":false, //Boolean
+        "message": "伺服器錯誤"
       }
+      
     ```
 
 
@@ -508,7 +563,8 @@
 
     ```json
       {
-        "itemsTitle":"我是ＸＸＸ" //Str  
+        "items":1, //Number  
+        "itemsTitle":"我是ＸＸＸ" //String  
       }
     ```
 
@@ -516,11 +572,17 @@
   >新增成功
   - **Code:** 200 <br />
     **Content:**
-    `(返回成功提示)`
+    `(返回成功提示或失敗提示)`
     <br />
     ```json
       {
-        "createItems":true //Boolean
+        "createItems":true, //Boolean
+        "message":"新增項目成功"
+      }
+      or
+       {
+        "createItems":false, //Boolean
+        "message":"新增項目失敗" //String
       }
     ```
 
@@ -528,16 +590,17 @@
   >新增失敗
   - **Code:** 401 <br />
     **Content:**
-    `返回失敗提示`
+    `返回錯誤提示`
     ```json
-      {
-        "createItems":false //Boolean
+     {
+        "createItems":false, //Boolean
+        "message":"伺服器錯誤" //String
       }
     ```
 
-## **更新待辦項目**
+## **更新待辦項目內容**
 
->更新"項目"
+>更新"項目"內容
 
   **URL**
   >/updateMyToDoItems
@@ -556,7 +619,7 @@
     ```json
       { 
         "itemsId":1, //Num
-        "itemsTitle":"我不是新來的"  //Str  
+        "itemsTitle":"我不是新來的"  //String  
       }
     ```
 
@@ -564,11 +627,17 @@
   >更新成功
   - **Code:** 200 <br />
     **Content:**
-    `(返回成功提示)`
+    `(返回成功或失敗提示)`
     <br />
     ```json
       {
-        "updateItems":true  //Boolean
+        "updateItems":true,  //Boolean
+        "message":"更新項目失敗" //String
+      }
+      or
+      {
+        "updateItems":false, //Boolean
+        "message":"更新項目失敗" //String
       }
     ```
 
@@ -576,10 +645,11 @@
   >更新失敗
   - **Code:** 401 <br />
     **Content:**
-    `返回失敗提示`
+    `返回錯誤提示`
     ```json
       {
-        "updateItems":false //Boolean
+        "updateItems":false, //Boolean
+        "message":"伺服器錯誤" //String
       }
     ```
 
@@ -603,8 +673,8 @@
       **Body:**
 
     ```json
-      {
-        "itemsId":1, //Num
+       {
+        "itemsId": 1 //Num
       }
     ```
 
@@ -612,11 +682,17 @@
   >刪除成功
   - **Code:** 200 <br />
     **Content:**
-    `(返回成功提示)`
+    `(返回成功或失敗提示)`
     <br />
     ```json
       {
-        "removeItems":true  //Boolean
+        "removeItems":true,  //Boolean
+        "message":"刪除項目成功" //String
+      }
+      or
+      {
+        "removeItems":false, //Boolean
+        "message":"刪除項目失敗" //String
       }
     ```
 
@@ -627,9 +703,66 @@
     `返回失敗提示`
     ```json
       {
-        "removeItems":false //Boolean
+        "removeItems":false, //Boolean
+        "message":"伺服器錯誤" //String
       }
     ```
+
+## **更新待辦項進度**
+
+>更新"項目"完成狀態
+
+  **URL**
+  >/updateMyToDoItemsSchedule
+
+- **Method:**
+
+  `PUT`
+
+- **URL Params**
+  
+  `none`
+
+- **Required:**
+      **Body:**
+
+    ```json
+      { 
+        "itemsId":1, //Num 
+      }
+    ```
+
+- **Success Response:**
+  >更新成功
+  - **Code:** 200 <br />
+    **Content:**
+    `(返回成功或失敗提示)`
+    <br />
+    ```json
+      {
+        "updateItemsSchedule":true,  //Boolean
+        "message":"更新項目進度成功" //String
+      }
+      or
+      {
+        "updateItemsSchedule":false, //Boolean
+        "message":"更新項目進度失敗" //String
+      }
+    ```
+
+- **Error Response:**
+  >更新失敗
+  - **Code:** 401 <br />
+    **Content:**
+    `返回錯誤提示`
+    ```json
+      {
+        "updateItemsSchedule":false, //Boolean
+        "message":"伺服器錯誤" //String
+      }
+    ```
+
+
 
 ## **項目次序異動**
 
@@ -663,21 +796,26 @@
     `(返回成功提示)`
     <br />
     ```json
-    {
-        "toDoitems":[{
-            "itemsId":2, //Num
-            "itemsTitle":"待辦項目2", //Str
-            "ItemsSchedule":true, //Boolean
-            "ItemsCreatTime":"2023-10-16", //DateTime
-            "ItemsLastUpDateTime":"2023-10-16", //DateTime
-            },{
-            "itemsId":1, //Num
-            "itemsTitle":"待辦項目1", //Str
-            "ItemsSchedule":true, //Boolean
-            "ItemsCreatTime":"2023-10-16", //DateTime
-            "ItemsLastUpDateTime":"2023-10-16", //DateTime
-            }
-        ], //Array
+    {   
+      "sortOrderUpdate":true, //Boolean
+      "toDoitems":[{
+          "id":3, //Num
+          "listId":1, //Num
+          "itemsSortOder": 1,//Num
+          "itemsTitle":"待辦項目3", //String
+          "ItemsSchedule":true, //Boolean
+          "ItemsCreatTime":"2023/10/24 上午9:02:23", //DateTime
+          "ItemsLastUpDateTime":"2023/10/24 上午10:04:00", //DateTime
+          },{
+          "id":2, //Num
+          "listId":1, //Num
+          "itemsSortOder": 3,//Num
+          "itemsTitle":"待辦項目2", //String
+          "ItemsSchedule":true, //Boolean
+          "ItemsCreatTime":"2023/10/24 上午9:04:54", //DateTime
+          "ItemsLastUpDateTime":"2023/10/24 上午10:02:48", //DateTime
+           } 
+       ], //Array
     }
     ```
 
@@ -688,7 +826,8 @@
     `返回失敗提示`
     ```json
       {
-        "sortOrderUpdate":false //Boolean
+        "sortOrderUpdate":false, //Boolean
+        "message":"更新項目失敗" //String
       }
     ```
 

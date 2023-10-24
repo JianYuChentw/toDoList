@@ -32,18 +32,48 @@ async function createList(userId, listTitle) {
 }
 
 // 讀取
-async function readList(data) {}
+async function readList(id) {
+  try {
+    const selectQuery = `
+    SELECT 
+    listData.id,
+    listData.userId,
+    listData.listTitle,
+    listData.listFinsh,
+    (listData.listTotal - listData.listFinsh) AS itemsUndo,
+    listData.listTotal,
+    listData.listCreateTime,
+    listData.listUpdateTime,
+    JSON_ARRAYAGG(
+    JSON_OBJECT('itemsTitle', itemsData.itemsTitle)
+    ) AS toDoitems
+    FROM listData
+    LEFT JOIN itemsData ON listData.id = itemsData.listId
+    WHERE listData.userId = ?
+    GROUP BY listData.id, listData.userId, listData.listTitle, listData.listFinsh, listData.listTotal, listData.listCreateTime, listData.listUpdateTime
+    LIMIT 5 OFFSET 0;
+    `;
+
+    const [rows] = await connection.execute(selectQuery, [id]);
+
+    if (rows.length > 0) {
+      // 如果找到匹配的数据，返回所有行
+      return rows;
+    } else {
+      // 如果没有匹配的数据，返回空数组或其他适当的值
+      return [];
+    }
+  } catch (error) {
+    console.error('查询数据时出错:', error);
+    return [];
+  }
+}
 
 // 更新
-async function updatedList(listId, userId, listTitle) {
+async function updatedList(listId, listTitle) {
   try {
-    const updateQuery =
-      'UPDATE listData SET listTitle = ? WHERE id = ? AND userId = ?';
-    const [result] = await connection.execute(updateQuery, [
-      listTitle,
-      listId,
-      userId,
-    ]);
+    const updateQuery = 'UPDATE listData SET listTitle = ? WHERE id = ? ';
+    const [result] = await connection.execute(updateQuery, [listTitle, listId]);
     console.log(result);
     if (result.affectedRows > 0) {
       return true;
@@ -57,15 +87,16 @@ async function updatedList(listId, userId, listTitle) {
 }
 
 // 刪除
-async function deleteList([listId], userId) {
+async function deleteList(listIds) {
   try {
-    const deleteQuery = 'DELETE FROM listData WHERE userId = ? AND id IN (?)';
-    const [result] = await connection.execute(deleteQuery, [userId, listId]);
-    if (result.affectedRows > 0) {
-      return true;
-    } else {
-      return false;
+    const results = [];
+
+    for (const listId of listIds) {
+      const deleteQuery = 'DELETE FROM listData WHERE id = ?';
+      const [result] = await connection.execute(deleteQuery, [listId]);
+      results.push(result.affectedRows > 0);
     }
+    return results.every((result) => result);
   } catch (error) {
     console.error('刪除失敗:', error);
     return false;
