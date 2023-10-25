@@ -23,8 +23,10 @@ async function MyToDoListPage(req, res) {
 
   try {
     const listData = await listModel.readList(access.userId, 1);
-    console.log(listData);
-    return res.json({ loginStatus: true, toDoList: listData });
+    const list = await listData.rows;
+    const nowPage = await listData.nowPage;
+    const totlePage = await listData.totlePage;
+    return res.json({ loginStatus: true, toDoList: list, nowPage, totlePage });
   } catch (error) {
     console.error('取得時發生錯誤:', error);
     return res.status(500).json({ gettoDoList: false, message: '伺服器錯誤' });
@@ -50,7 +52,11 @@ async function switchPage(req, res) {
     if (listData.length === 0) {
       return res.json({ loginStatus: true, toDoList: false });
     }
-    return res.json({ loginStatus: true, toDoList: listData });
+    const list = await listData.rows;
+    const nowPage = await listData.nowPage;
+    const totlePage = await listData.totlePage;
+
+    return res.json({ loginStatus: true, toDoList: list, nowPage, totlePage });
   } catch (error) {
     console.error('取得時發生錯誤:', error);
     return res.status(500).json({ gettoDoList: false, message: '伺服器錯誤' });

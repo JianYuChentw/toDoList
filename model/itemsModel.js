@@ -1,5 +1,36 @@
 const { connection } = require('../data/data');
 
+// 更新序列
+async function updatedOrder(listId) {
+  try {
+    // 依據listId搜索項目
+    const query = `SELECT * FROM itemsData WHERE listId = ? ORDER BY itemsSortOder, itemsUpdateTime`;
+
+    const [results] = await connection.query(query, [listId]);
+    let newSortOrder = 1;
+
+    // 搜索序號並更新
+    for (const record of results) {
+      const currentSortOrder = record.itemsSortOder;
+      if (currentSortOrder !== newSortOrder) {
+        // 如果符合條件但序號有誤，則更新
+        const updateQuery =
+          'UPDATE itemsData SET itemsSortOder = ? WHERE listId = ? AND itemsSortOder = ?';
+        await connection.query(updateQuery, [
+          newSortOrder,
+          listId,
+          currentSortOrder,
+        ]);
+      }
+      newSortOrder++;
+    }
+
+    console.log('分配序號完成');
+  } catch (error) {
+    console.error('分配序號發生錯誤:', error);
+  }
+}
+
 function formatDateTime(inputDateTime) {
   const inputDate = new Date(inputDateTime);
 
@@ -222,30 +253,7 @@ async function createItemsAndListSchedule(listId, itemsTitle) {
   }
 }
 
-//項目序列異動
-// async function updateSortOrder(id, sortNumber) {
-//   try {
-//     const updateSort = 'UPDATE itemsData SET itemsSortOder = ? WHERE id = ?';
-//     const [updateResult] = await connection.execute(updateSort, [
-//       sortNumber,
-//       id,
-//     ]);
-//     if (updateResult.affectedRows > 0) {
-//       const selectListId = 'SELECT listId FROM itemsData WHERE id = ?';
-//       const [selectResult] = await connection.execute(selectListId, [id]);
-//       console.log(selectResult);
-//       const newSort = await readItems(selectResult[0].listId);
-//       console.log(newSort);
-//       return newSort;
-//     } else {
-//       return false;
-//     }
-//   } catch (error) {
-//     console.error('更新失敗:', error);
-//     return error;
-//   }
-// }
-
+// 異動項目位置(項目id,目標位置)
 async function updateSortOrder(id, newSortOrder) {
   try {
     const conn = await connection.getConnection();
@@ -253,22 +261,20 @@ async function updateSortOrder(id, newSortOrder) {
     // 啟動事務功能
     await conn.beginTransaction();
 
-    // 步骤1：获取当前项目的排序顺序
+    //取得當前項目
     const [rows] = await connection.execute(
       'SELECT itemsSortOder, listId FROM itemsData WHERE id = ?',
       [id]
     );
 
-    console.log(rows);
-
     if (rows.length === 0) {
-      throw new Error('未找到项目');
+      throw new Error('無此項目');
     }
 
     const currentSortOrder = rows[0].itemsSortOder;
     const listId = rows[0].listId;
 
-    // 步骤2：更新其他项目的排序顺序
+    // 更新其他項目排序
     if (newSortOrder < currentSortOrder) {
       await connection.execute(
         'UPDATE itemsData SET itemsSortOder = itemsSortOder + 1 WHERE listId = ? AND itemsSortOder >= ? AND itemsSortOder < ?',
@@ -281,7 +287,7 @@ async function updateSortOrder(id, newSortOrder) {
       );
     }
 
-    // 步骤3：更新目标项目的排序顺序
+    // 更新目標序
     await connection.execute(
       'UPDATE itemsData SET itemsSortOder = ? WHERE id = ?',
       [newSortOrder, id]
@@ -290,14 +296,12 @@ async function updateSortOrder(id, newSortOrder) {
     // 提交事务
     await conn.commit();
     conn.release();
+    return true;
   } catch (error) {
-    console.error('调整排序失败:', error);
-
-    // 如果出错，回滚事务
-    if (conn) {
-      await conn.rollback();
-      conn.release();
-    }
+    console.error('異動排序失敗:', error);
+    await conn.rollback();
+    conn.release();
+    return error;
   }
 }
 
@@ -310,4 +314,5 @@ module.exports = {
   createItemsAndListSchedule,
   updateSortOrder,
   ItemsSchedule,
+  updatedOrder,
 };

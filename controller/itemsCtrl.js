@@ -6,11 +6,12 @@ async function createToDoItems(req, res) {
   const { listId, itemsTitle } = req.body;
   const token = req.header.Authorization;
   const access = tools.verifyToken(token);
-  const checkPass = tools.checkUserId(listId);
+  const checkPass = await tools.checkUserId(listId);
+  console.log(checkPass);
   if (access === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
   }
-  if (checkPass != access.userId || !checkPass) {
+  if (checkPass != access.userId) {
     return res.status(200).json({ createItems: false, message: '無此清單' });
   }
   try {
@@ -35,7 +36,8 @@ async function deleteToDoItems(req, res) {
   const itemsId = req.body.itemsId;
   const token = req.header.Authorization;
   const access = tools.verifyToken(token);
-  const checkPass = tools.itemsIdcheckUserId(itemsId);
+  const listId = await tools.itemsIdcheckUserId(itemsId);
+  const checkPass = await tools.checkUserId(listId);
   if (access === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
   }
@@ -53,11 +55,10 @@ async function deleteToDoItems(req, res) {
       return res
         .status(200)
         .json({ removeItems: false, message: '刪除項目失敗' });
-    } else {
-      return res
-        .status(200)
-        .json({ removeItems: true, message: '刪除項目成功' });
     }
+    //刷新序列
+    await itemsModel.updatedOrder(listId);
+    return res.status(200).json({ removeItems: true, message: '刪除項目成功' });
   } catch (error) {
     console.error('刪除項目失敗:', error);
     return res.status(500).json({ removeItems: false, message: '伺服器錯誤' });
@@ -69,7 +70,8 @@ async function updateToDoItems(req, res) {
   const { itemsTitle, itemsId } = req.body;
   const token = req.header.Authorization;
   const access = tools.verifyToken(token);
-  const checkPass = tools.itemsIdcheckUserId(itemsId);
+  const listId = await tools.itemsIdcheckUserId(itemsId);
+  const checkPass = await tools.checkUserId(listId);
   if (access === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
   }
@@ -103,7 +105,8 @@ async function updatedItemsSchedule(req, res) {
   const { itemsId } = req.body;
   const token = req.header.Authorization;
   const access = tools.verifyToken(token);
-  const checkPass = tools.itemsIdcheckUserId(itemsId);
+  const listId = await tools.itemsIdcheckUserId(itemsId);
+  const checkPass = await tools.checkUserId(listId);
   if (access === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
   }
@@ -131,7 +134,8 @@ async function readToDoItems(req, res) {
   const { listId } = req.body;
   const token = req.header.Authorization;
   const access = tools.verifyToken(token);
-  const checkPass = tools.itemsIdcheckUserId(itemsId);
+  const checkPass = await tools.checkUserId(listId);
+  console.log(checkPass);
   if (access === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
   }
@@ -162,7 +166,8 @@ async function changeItemSort(req, res) {
   const { itemsId, sortOrder } = req.body;
   const token = req.header.Authorization;
   const access = tools.verifyToken(token);
-  const checkPass = tools.itemsIdcheckUserId(itemsId);
+  const listId = await tools.itemsIdcheckUserId(itemsId);
+  const checkPass = await tools.checkUserId(listId);
   if (access === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
   }
@@ -181,10 +186,12 @@ async function changeItemSort(req, res) {
       itemsId,
       sortOrder
     );
+    console.log(changeItemsResult);
     if (!changeItemsResult) {
       return res.json({ sortOrderUpdate: false, message: '更新項目排序失敗' });
     } else {
-      return res.json({ sortOrderUpdate: true, toDoitems: changeItemsResult });
+      await itemsModel.updatedOrder(listId);
+      return res.json({ sortOrderUpdate: true, message: '更新項目排序成功' });
     }
   } catch (error) {
     nsole.error('異動待辦項目失敗:', error);

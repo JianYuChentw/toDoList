@@ -28,7 +28,7 @@ async function updatedToDoList(req, res) {
   const { listId, listTitle } = req.body;
   const token = req.header.Authorization;
   const access = tools.verifyToken(token);
-  const checkPass = tools.checkUserId(listId);
+  const checkPass = await tools.checkUserId(listId);
   if (access === null) {
     return res.json({ loginStatus: false });
   }
@@ -63,7 +63,7 @@ async function deleteToDoList(req, res) {
   const listId = req.body.listId;
   const token = req.header.Authorization;
   const access = tools.verifyToken(token);
-  const checkPass = tools.checkUserId(listId);
+  const checkPass = await tools.checkUserId(listId[0]);
   const areAllNumbers = listId.every((item) => typeof item === 'number');
   if (access === null) {
     return res.json({ loginStatus: false });

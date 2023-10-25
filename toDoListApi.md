@@ -818,24 +818,7 @@
     ```json
     {   
       "sortOrderUpdate":true, //Boolean
-      "toDoitems":[{
-          "id":3, //Num
-          "listId":1, //Num
-          "itemsSortOder": 1,//Num
-          "itemsTitle":"待辦項目3", //String
-          "ItemsSchedule":true, //Boolean
-          "ItemsCreatTime":"2023/10/24 上午9:02:23", //DateTime
-          "ItemsLastUpDateTime":"2023/10/24 上午10:04:00", //DateTime
-          },{
-          "id":2, //Num
-          "listId":1, //Num
-          "itemsSortOder": 3,//Num
-          "itemsTitle":"待辦項目2", //String
-          "ItemsSchedule":true, //Boolean
-          "ItemsCreatTime":"2023/10/24 上午9:04:54", //DateTime
-          "ItemsLastUpDateTime":"2023/10/24 上午10:02:48", //DateTime
-           } 
-       ], //Array
+     "message": "更新項目排序成功" //String
     }
     ```
 

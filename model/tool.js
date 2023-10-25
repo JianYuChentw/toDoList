@@ -21,18 +21,38 @@ function verifyToken(token) {
 
 //listId取得userId
 async function checkUserId(listId) {
-  const listDataQuery = 'SELECT userId FROM listData WHERE id = ?';
-  const [listDataRows] = await connection.execute(listDataQuery, [listId]);
-  return listDataRows[0].userId;
+  try {
+    const listDataQuery = 'SELECT userId FROM listData WHERE id = ?';
+    const [listDataRows] = await connection.execute(listDataQuery, [listId]);
+
+    if (listDataRows && listDataRows.length > 0) {
+      const userId = listDataRows[0].userId;
+      return userId;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('取得userId時發生錯誤:', error);
+    throw error; //
+  }
 }
 
 // itemsId取得listId
 async function itemsIdcheckUserId(itemsId) {
-  const itemsDataQuery = 'SELECT listId FROM itemsData WHERE id = ?';
-  const [litemsDataRows] = await connection.execute(itemsDataQuery, [itemsId]);
-  console.log(litemsDataRows);
-  const listId = litemsDataRows[0].listId;
-  return checkUserId(listId);
+  try {
+    const itemsDataQuery = 'SELECT listId FROM itemsData WHERE id = ?';
+    const [itemsDataRows] = await connection.execute(itemsDataQuery, [itemsId]);
+
+    if (itemsDataRows && itemsDataRows.length > 0) {
+      const listId = itemsDataRows[0].listId;
+      return listId;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('取得listId時發生錯誤:', error);
+    throw error;
+  }
 }
 
 module.exports = {

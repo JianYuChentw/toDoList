@@ -43,7 +43,7 @@ async function readList(id, nowPage) {
     const [countResult] = await connection.execute(countQuery, [id]);
 
     // 換算總頁數
-    const totlePage = countResult[0].totalRows / 5;
+    const totlePage = Math.ceil(countResult[0].totalRows / 5);
 
     //導入起始行數(ex:OFFSET 0為不忽略行數, OFFSET 5 忽略前5行)
     const selectQuery = `
