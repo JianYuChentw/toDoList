@@ -33,8 +33,16 @@ async function register(req, res) {
   if (!chekAccountResult.success) {
     return res.json({ registerResult: false, message: '帳號已存在' });
   }
-  userModel.createUser(account, password);
-  return res.json({ registerResult: true, message: '註冊成功' });
+  try {
+    await userModel.createUser(account, password);
+    return res.json({ registerResult: true, message: '註冊成功' });
+  } catch (error) {
+    return res.json({
+      registerResult: false,
+      message: '發生錯誤',
+      error: error.message,
+    });
+  }
 }
 
 //登出

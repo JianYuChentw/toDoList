@@ -6,8 +6,12 @@ async function createToDoItems(req, res) {
   const { listId, itemsTitle } = req.body;
   const token = req.header.Authorization;
   const access = tools.verifyToken(token);
+  const checkPass = tools.checkUserId(listId);
   if (access === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
+  }
+  if (checkPass != access.userId || !checkPass) {
+    return res.status(200).json({ createItems: false, message: '無此清單' });
   }
   try {
     const createItemsResult = await itemsModel.createItemsAndListSchedule(
@@ -31,6 +35,7 @@ async function deleteToDoItems(req, res) {
   const itemsId = req.body.itemsId;
   const token = req.header.Authorization;
   const access = tools.verifyToken(token);
+  const checkPass = tools.itemsIdcheckUserId(itemsId);
   if (access === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
   }
@@ -38,6 +43,9 @@ async function deleteToDoItems(req, res) {
     return res
       .status(200)
       .json({ removeItems: false, message: '輸入非正整數型別' });
+  }
+  if (checkPass != access.userId || !checkPass) {
+    return res.status(200).json({ removeItems: false, message: '無此項目' });
   }
   try {
     const deleteResult = await itemsModel.deleteItems(itemsId);
@@ -61,6 +69,7 @@ async function updateToDoItems(req, res) {
   const { itemsTitle, itemsId } = req.body;
   const token = req.header.Authorization;
   const access = tools.verifyToken(token);
+  const checkPass = tools.itemsIdcheckUserId(itemsId);
   if (access === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
   }
@@ -68,6 +77,9 @@ async function updateToDoItems(req, res) {
     return res
       .status(200)
       .json({ updatedItems: false, message: '輸入非正整數型別' });
+  }
+  if (checkPass != access.userId || !checkPass) {
+    return res.status(200).json({ updatedItems: false, message: '無此項目' });
   }
   try {
     const updatedItemsResult = await itemsModel.updatedItems(
@@ -91,8 +103,12 @@ async function updatedItemsSchedule(req, res) {
   const { itemsId } = req.body;
   const token = req.header.Authorization;
   const access = tools.verifyToken(token);
+  const checkPass = tools.itemsIdcheckUserId(itemsId);
   if (access === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
+  }
+  if (checkPass != access.userId || !checkPass) {
+    return res.status(200).json({ updateSchedule: false, message: '無此項目' });
   }
   try {
     const changeItem = await itemsModel.ItemsSchedule(itemsId);
@@ -115,6 +131,7 @@ async function readToDoItems(req, res) {
   const { listId } = req.body;
   const token = req.header.Authorization;
   const access = tools.verifyToken(token);
+  const checkPass = tools.itemsIdcheckUserId(itemsId);
   if (access === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
   }
@@ -122,6 +139,9 @@ async function readToDoItems(req, res) {
     return res
       .status(200)
       .json({ readedItems: false, message: '輸入非正整數型別' });
+  }
+  if (checkPass != access.userId || !checkPass) {
+    return res.status(200).json({ readedItems: false, message: '無此項目' });
   }
   try {
     const readItemsResult = await itemsModel.readItems(listId);
@@ -142,13 +162,19 @@ async function changeItemSort(req, res) {
   const { itemsId, sortOrder } = req.body;
   const token = req.header.Authorization;
   const access = tools.verifyToken(token);
+  const checkPass = tools.itemsIdcheckUserId(itemsId);
   if (access === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
   }
   if (isNaN(itemsId) || isNaN(sortOrder)) {
     return res
       .status(200)
-      .json({ readedItems: false, message: '輸入非正整數型別' });
+      .json({ sortOrderUpdate: false, message: '輸入非正整數型別' });
+  }
+  if (checkPass != access.userId || !checkPass) {
+    return res
+      .status(200)
+      .json({ sortOrderUpdate: false, message: '無此項目' });
   }
   try {
     const changeItemsResult = await itemsModel.updateSortOrder(

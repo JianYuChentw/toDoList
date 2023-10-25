@@ -19,7 +19,25 @@ function verifyToken(token) {
   }
 }
 
+//listId取得userId
+async function checkUserId(listId) {
+  const listDataQuery = 'SELECT userId FROM listData WHERE id = ?';
+  const [listDataRows] = await connection.execute(listDataQuery, [listId]);
+  return listDataRows[0].userId;
+}
+
+// itemsId取得listId
+async function itemsIdcheckUserId(itemsId) {
+  const itemsDataQuery = 'SELECT listId FROM itemsData WHERE id = ?';
+  const [litemsDataRows] = await connection.execute(itemsDataQuery, [itemsId]);
+  console.log(litemsDataRows);
+  const listId = litemsDataRows[0].listId;
+  return checkUserId(listId);
+}
+
 module.exports = {
   makeToken,
   verifyToken,
+  checkUserId,
+  itemsIdcheckUserId,
 };

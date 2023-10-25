@@ -85,11 +85,7 @@
       "nowPage":1, //Int    
       "totlePage":1, //Int    
     }
-    or
-    {
-        "loginStatus": false, //Boolean
-        "message": "非登入狀態" //String
-      }
+    
     ```
 
 - **Error Response:**
@@ -102,6 +98,11 @@
     {
       "gettoDoList":false, //Boolean
       "message":"伺服器錯誤" //String
+    }
+    or
+    {
+        "loginStatus": false, //Boolean
+        "message": "非登入狀態" //String
     }
     ```
 
@@ -311,7 +312,7 @@
 >切換頁面
 
 - **URL**
-/MyToDoListBeforePage
+/MyToDoListSwitchPage
 
 - **Method:**
 
@@ -322,7 +323,13 @@
   `none`
 
 -  **Required:**
+   **Body:**
 
+    ```json
+      {
+        "goalPage":1 //Number  
+      }
+    ```
 - **Success Response:**
 
   - **Code:** 200 <br />
@@ -361,16 +368,24 @@
     ```
 
 - **Error Response:**
-
-  >未登入狀態
-
+>目標頁無資料則，toDoList": false
   - **Code:** 401 <br />
     **Content:** 
     ```json
-      {
-        "loginStatus": false, //Boolean
-        "message":"非登入狀態" //Stringing
-      }
+    {
+      "gettoDoList":false, //Boolean
+      "message":"伺服器錯誤" //String
+    }
+    or
+    {
+      "loginStatus": false, //Boolean
+      "message":"非登入狀態" //Stringing
+    }
+    or
+    {
+    "loginStatus": true, //Boolean
+    "toDoList": false //Boolean
+    }
     ```
 
 # **清單功能**
@@ -409,11 +424,7 @@
         "createList":true, //Boolean
         "message":"新增清單成功" //Stringing
       }
-      or
-      {
-        "createList":false, //Boolean
-        "message":"新增清單失敗" //Stringing
-      }
+      
     ```
 
 - **Error Response:**
@@ -425,6 +436,11 @@
       {
         "createList":true, //Boolean
         "message":"伺服器錯誤" //Stringing
+      }
+      or
+      {
+        "createList":false, //Boolean
+        "message":"新增清單失敗" //Stringing
       }
     ```
 
@@ -464,11 +480,6 @@
         "updateList":true,  //Boolean
         "message": "更新清單成功" //String
       }
-      or
-      {
-        "updateList":true,  //Boolean
-        "message": "更新清單失敗" //String
-      }
     ```
 
 - **Error Response:**
@@ -480,6 +491,11 @@
       {
       "updateList":true,  //Boolean
       "message": "伺服器錯誤" //String
+      }
+      or
+      {
+        "updateList":true,  //Boolean
+        "message": "更新清單失敗" //String
       }
     ```
 
@@ -521,11 +537,7 @@
         "removeList":true,  //Boolean
         "message": "刪除清單成功"
       }
-      or
-      {
-        "removeList":true,  //Boolean
-        "message": "刪除清單失敗"
-      }
+      
     ```
 
 - **Error Response:**
@@ -538,7 +550,11 @@
         "removeList":false, //Boolean
         "message": "伺服器錯誤"
       }
-      
+      or
+      {
+        "removeList":true,  //Boolean
+        "message": "刪除清單失敗"
+      }
     ```
 
 
@@ -579,11 +595,7 @@
         "createItems":true, //Boolean
         "message":"新增項目成功"
       }
-      or
-       {
-        "createItems":false, //Boolean
-        "message":"新增項目失敗" //String
-      }
+      
     ```
 
 - **Error Response:**
@@ -592,9 +604,14 @@
     **Content:**
     `返回錯誤提示`
     ```json
-     {
+      {
         "createItems":false, //Boolean
         "message":"伺服器錯誤" //String
+      }
+      or
+      {
+        "createItems":false, //Boolean
+        "message":"新增項目失敗" //String
       }
     ```
 
@@ -634,11 +651,7 @@
         "updateItems":true,  //Boolean
         "message":"更新項目失敗" //String
       }
-      or
-      {
-        "updateItems":false, //Boolean
-        "message":"更新項目失敗" //String
-      }
+      
     ```
 
 - **Error Response:**
@@ -650,6 +663,11 @@
       {
         "updateItems":false, //Boolean
         "message":"伺服器錯誤" //String
+      }
+      or
+      {
+        "updateItems":false, //Boolean
+        "message":"更新項目失敗" //String
       }
     ```
 
@@ -689,11 +707,7 @@
         "removeItems":true,  //Boolean
         "message":"刪除項目成功" //String
       }
-      or
-      {
-        "removeItems":false, //Boolean
-        "message":"刪除項目失敗" //String
-      }
+      
     ```
 
 - **Error Response:**
@@ -705,6 +719,11 @@
       {
         "removeItems":false, //Boolean
         "message":"伺服器錯誤" //String
+      }
+      or
+      {
+        "removeItems":false, //Boolean
+        "message":"刪除項目失敗" //String
       }
     ```
 
@@ -743,11 +762,7 @@
         "updateItemsSchedule":true,  //Boolean
         "message":"更新項目進度成功" //String
       }
-      or
-      {
-        "updateItemsSchedule":false, //Boolean
-        "message":"更新項目進度失敗" //String
-      }
+      
     ```
 
 - **Error Response:**
@@ -759,6 +774,11 @@
       {
         "updateItemsSchedule":false, //Boolean
         "message":"伺服器錯誤" //String
+      }
+      or
+      {
+        "updateItemsSchedule":false, //Boolean
+        "message":"更新項目進度失敗" //String
       }
     ```
 
@@ -825,6 +845,11 @@
     **Content:**
     `返回失敗提示`
     ```json
+      {
+        "gettoDoList":false, //Boolean
+        "message":"伺服器錯誤" //String
+      }
+    or
       {
         "sortOrderUpdate":false, //Boolean
         "message":"更新項目失敗" //String

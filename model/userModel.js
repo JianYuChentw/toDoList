@@ -8,12 +8,12 @@ async function createUser(account, password) {
           values (?,?)`;
 
     const userValue = [account, password];
-    await connection.query(newUser, userValue);
+    const result = await connection.query(newUser, userValue);
     console.log('新增成功!');
     return true;
   } catch (error) {
     console.error('新增失敗:', error);
-    return false;
+    return error;
   }
 }
 
@@ -29,7 +29,7 @@ async function repeatUser(account) {
     }
   } catch (error) {
     console.error('檢查重複使用者時出錯:', error);
-    return { success: false, message: '出現錯誤' };
+    return error;
   }
 }
 
@@ -45,7 +45,7 @@ async function chekPassword(password) {
     }
   } catch (error) {
     console.error('檢查密碼時出錯:', error);
-    return { success: false, message: '出現錯誤' };
+    return error;
   }
 }
 

@@ -29,9 +29,7 @@ router.get('/LogOutMyToDoList', user.logOut);
 router.post('/registerMyToDoList', user.register);
 
 //換頁
-router.put('/MyToDoListBeforePage', (req, res) => {
-  res.send('分頁查詢 {-}');
-});
+router.put('/MyToDoListSwitchPage', toDoListPage.switchPage);
 
 / 清單功能 /;
 //新增清單

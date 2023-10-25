@@ -14,7 +14,7 @@ async function calculateItems(listId, schedule) {
     }
   } catch (error) {
     console.error('完成度計數器發生錯誤:', error);
-    return 0;
+    return error;
   }
 }
 
@@ -27,13 +27,25 @@ async function createList(userId, listTitle) {
     return true;
   } catch (error) {
     console.error('創建清單錯誤:', error);
-    return false; //
+    return error; //
   }
 }
 
 // 讀取
-async function readList(id) {
+async function readList(id, nowPage) {
   try {
+    // 計算起始行數
+    const startRow = (nowPage - 1) * 5;
+
+    //查詢總行數
+    const countQuery =
+      'SELECT COUNT(*) as totalRows FROM listData WHERE userId = ?';
+    const [countResult] = await connection.execute(countQuery, [id]);
+
+    // 換算總頁數
+    const totlePage = countResult[0].totalRows / 5;
+
+    //導入起始行數(ex:OFFSET 0為不忽略行數, OFFSET 5 忽略前5行)
     const selectQuery = `
     SELECT 
     listData.id,
@@ -42,8 +54,8 @@ async function readList(id) {
     listData.listFinsh,
     (listData.listTotal - listData.listFinsh) AS itemsUndo,
     listData.listTotal,
-    listData.listCreateTime,
-    listData.listUpdateTime,
+    DATE_FORMAT(listData.listCreateTime, '%Y-%m-%d %H:%i:%s') AS listCreateTime,
+    DATE_FORMAT(listData.listUpdateTime, '%Y-%m-%d %H:%i:%s') AS listUpdateTime,
     JSON_ARRAYAGG(
     JSON_OBJECT('itemsTitle', itemsData.itemsTitle)
     ) AS toDoitems
@@ -51,21 +63,19 @@ async function readList(id) {
     LEFT JOIN itemsData ON listData.id = itemsData.listId
     WHERE listData.userId = ?
     GROUP BY listData.id, listData.userId, listData.listTitle, listData.listFinsh, listData.listTotal, listData.listCreateTime, listData.listUpdateTime
-    LIMIT 5 OFFSET 0;
+    LIMIT 5 OFFSET ${startRow};
     `;
 
     const [rows] = await connection.execute(selectQuery, [id]);
 
     if (rows.length > 0) {
-      // 如果找到匹配的数据，返回所有行
-      return rows;
+      return { rows, nowPage, totlePage };
     } else {
-      // 如果没有匹配的数据，返回空数组或其他适当的值
       return [];
     }
   } catch (error) {
-    console.error('查询数据时出错:', error);
-    return [];
+    console.error('查詢時出錯:', error);
+    return error;
   }
 }
 
@@ -82,7 +92,7 @@ async function updatedList(listId, listTitle) {
     }
   } catch (error) {
     console.error('更新失敗:', error);
-    return false;
+    return error;
   }
 }
 
@@ -99,7 +109,7 @@ async function deleteList(listIds) {
     return results.every((result) => result);
   } catch (error) {
     console.error('刪除失敗:', error);
-    return false;
+    return error;
   }
 }
 

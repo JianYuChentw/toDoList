@@ -1,5 +1,18 @@
 const { connection } = require('../data/data');
 
+function formatDateTime(inputDateTime) {
+  const inputDate = new Date(inputDateTime);
+
+  const year = inputDate.getFullYear();
+  const month = String(inputDate.getMonth() + 1).padStart(2, '0');
+  const day = String(inputDate.getDate()).padStart(2, '0');
+  const hours = String(inputDate.getHours()).padStart(2, '0');
+  const minutes = String(inputDate.getMinutes()).padStart(2, '0');
+  const seconds = String(inputDate.getSeconds()).padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 //序列篩選
 function sortItemsByOrder(items) {
   // 依照當前序列整理
@@ -31,7 +44,7 @@ async function createItems(listId, itemsTitle) {
     [result] = await connection.execute(insertQuery, [
       listId,
       itemsTitle,
-      nowlistTotal,
+      nowlistTotal + 1,
     ]);
 
     console.log(result);
@@ -39,7 +52,7 @@ async function createItems(listId, itemsTitle) {
     return result.affectedRows === 1;
   } catch (error) {
     console.error('創建項目錯誤:', error);
-    return false;
+    return error;
   }
 }
 
@@ -52,8 +65,8 @@ async function readItems(listId) {
     const transformedResults = sortFilter.map((item) => ({
       ...item,
       itemsSchedule: item.itemsSchedule === 1,
-      itemsCreateTime: new Date(item.itemsCreateTime).toLocaleString(),
-      itemsUpdateTime: new Date(item.itemsUpdateTime).toLocaleString(),
+      itemsCreateTime: formatDateTime(new Date(item.itemsCreateTime)),
+      itemsUpdateTime: formatDateTime(new Date(item.itemsUpdateTime)),
     }));
     console.log(transformedResults);
     if (rows.length > 0) {
@@ -63,7 +76,7 @@ async function readItems(listId) {
     }
   } catch (error) {
     console.error('讀取項目時發生錯誤:', error);
-    return [];
+    return error;
   }
 }
 
@@ -82,7 +95,7 @@ async function updatedItems(itemsId, itemsTitle) {
     }
   } catch (error) {
     console.error('更新失敗:', error);
-    return false;
+    return error;
   }
 }
 
@@ -115,7 +128,7 @@ async function updatedItemsSchedule(listId, n) {
     }
   } catch (error) {
     console.error('更新listTotal時，發生錯誤:', error);
-    return false;
+    return error;
   }
 }
 
@@ -158,13 +171,12 @@ async function ItemsSchedule(itemId) {
     }
   } catch (error) {
     console.error('更新失敗:', error);
-    return false;
+    return error;
   }
 }
 
 // 刪除
 async function deleteItems(itemId) {
-  console.log(itemId);
   try {
     const selectListId = 'SELECT listId FROM itemsData WHERE id = ?';
     const [selectResult] = await connection.execute(selectListId, [itemId]);
@@ -178,7 +190,7 @@ async function deleteItems(itemId) {
     }
   } catch (error) {
     console.error('刪除失敗:', error);
-    return false;
+    return error;
   }
 }
 
@@ -191,15 +203,18 @@ async function createItemsAndListSchedule(listId, itemsTitle) {
     const createItemsQuantityResult = await updatedItemsSchedule(listId, 1);
     if (!createResult || !createItemsQuantityResult) {
       await conn.rollback();
+      conn.release();
       console.log('message: 新增項目失敗');
       return false;
     } else {
       await conn.commit();
+      conn.release();
       console.log('message: 新增項目成功');
       return true;
     }
   } catch (error) {
     await conn.rollback();
+    conn.release();
     console.error('創建待辦項目失敗:', error);
     // 返回伺服器錯誤的響應
     console.log('message: 伺服器錯誤');
@@ -208,26 +223,81 @@ async function createItemsAndListSchedule(listId, itemsTitle) {
 }
 
 //項目序列異動
-async function updateSortOrder(id, sortNumber) {
+// async function updateSortOrder(id, sortNumber) {
+//   try {
+//     const updateSort = 'UPDATE itemsData SET itemsSortOder = ? WHERE id = ?';
+//     const [updateResult] = await connection.execute(updateSort, [
+//       sortNumber,
+//       id,
+//     ]);
+//     if (updateResult.affectedRows > 0) {
+//       const selectListId = 'SELECT listId FROM itemsData WHERE id = ?';
+//       const [selectResult] = await connection.execute(selectListId, [id]);
+//       console.log(selectResult);
+//       const newSort = await readItems(selectResult[0].listId);
+//       console.log(newSort);
+//       return newSort;
+//     } else {
+//       return false;
+//     }
+//   } catch (error) {
+//     console.error('更新失敗:', error);
+//     return error;
+//   }
+// }
+
+async function updateSortOrder(id, newSortOrder) {
   try {
-    const updateSort = 'UPDATE itemsData SET itemsSortOder = ? WHERE id = ?';
-    const [updateResult] = await connection.execute(updateSort, [
-      sortNumber,
-      id,
-    ]);
-    if (updateResult.affectedRows > 0) {
-      const selectListId = 'SELECT listId FROM itemsData WHERE id = ?';
-      const [selectResult] = await connection.execute(selectListId, [id]);
-      console.log(selectResult);
-      const newSort = await readItems(selectResult[0].listId);
-      console.log(newSort);
-      return newSort;
-    } else {
-      return false;
+    const conn = await connection.getConnection();
+
+    // 啟動事務功能
+    await conn.beginTransaction();
+
+    // 步骤1：获取当前项目的排序顺序
+    const [rows] = await connection.execute(
+      'SELECT itemsSortOder, listId FROM itemsData WHERE id = ?',
+      [id]
+    );
+
+    console.log(rows);
+
+    if (rows.length === 0) {
+      throw new Error('未找到项目');
     }
+
+    const currentSortOrder = rows[0].itemsSortOder;
+    const listId = rows[0].listId;
+
+    // 步骤2：更新其他项目的排序顺序
+    if (newSortOrder < currentSortOrder) {
+      await connection.execute(
+        'UPDATE itemsData SET itemsSortOder = itemsSortOder + 1 WHERE listId = ? AND itemsSortOder >= ? AND itemsSortOder < ?',
+        [listId, newSortOrder, currentSortOrder]
+      );
+    } else if (newSortOrder > currentSortOrder) {
+      await connection.execute(
+        'UPDATE itemsData SET itemsSortOder = itemsSortOder - 1 WHERE listId = ? AND itemsSortOder > ? AND itemsSortOder <= ?',
+        [listId, currentSortOrder, newSortOrder]
+      );
+    }
+
+    // 步骤3：更新目标项目的排序顺序
+    await connection.execute(
+      'UPDATE itemsData SET itemsSortOder = ? WHERE id = ?',
+      [newSortOrder, id]
+    );
+
+    // 提交事务
+    await conn.commit();
+    conn.release();
   } catch (error) {
-    console.error('更新失敗:', error);
-    return false;
+    console.error('调整排序失败:', error);
+
+    // 如果出错，回滚事务
+    if (conn) {
+      await conn.rollback();
+      conn.release();
+    }
   }
 }
 
