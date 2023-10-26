@@ -1,0 +1,369 @@
+{
+	"info": {
+		"_postman_id": "8d27eea4-f07c-49ed-a5dd-14b596198195",
+		"name": "to do list",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28506239",
+		"_collection_link": "https://galactic-spaceship-883381.postman.co/workspace/New-Team-Workspace~1281c59d-fba9-43d2-a0d2-dac418146aa1/collection/28646458-8d27eea4-f07c-49ed-a5dd-14b596198195?action=share&source=collection_link&creator=28506239"
+	},
+	"item": [
+		{
+			"name": "Page",
+			"item": [
+				{
+					"name": "LoginPage",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "MyToDoList",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "MyToDoItems",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"listId\":\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/MyToDoItems",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"MyToDoItems"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SwitchPage",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"goalPage\":1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/MyToDoListSwitchPage",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"MyToDoListSwitchPage"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UserFunction",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"account\" :\"new123\",\n  \"password\" :\"pass123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/LoginMyToDoList",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"LoginMyToDoList"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "LogOut",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ListFunction",
+			"item": [
+				{
+					"name": "CreateList",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemsTitle\":\"我是新來的\" \n}\n  ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/createMyToDoList",
+							"path": [
+								"createMyToDoList"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RemoveList",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n     \"listId\":1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/removeToDoList",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"removeToDoList"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateList",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"listId\":1, \n    \"listTitle\":\"這是更新資料\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/updateMyToDoList",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"updateMyToDoList"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ItemsFunction",
+			"item": [
+				{
+					"name": "CreateItems",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"listId\":5,\n    \"itemsTitle\":\"代辦的豆瓣\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/createMyToDoItems",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"createMyToDoItems"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateItems",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemsTitle\":\"被更新的豆瓣醬\",\n     \"itemsId\":5,\n      \"listId\":6\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/updateMyToDoItems",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"updateMyToDoItems"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RemoveItems",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemsId\":18\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/removeMyToDoItems",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"removeMyToDoItems"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "iTemsOrderMove",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemsId\":2,\n    \"sortOrder\":1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/MyToDoItemsOrderMove",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"MyToDoItemsOrderMove"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateSchedule",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \n    \"itemsId\":1 \n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/updateMyToDoItemsSchedule",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"updateMyToDoItemsSchedule"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
