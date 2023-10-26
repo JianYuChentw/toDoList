@@ -31,7 +31,7 @@ async function createList(userId, listTitle) {
   }
 }
 
-// 讀取
+// 讀取（可指定目標頁）
 async function readList(id, nowPage) {
   try {
     // 計算起始行數
@@ -69,6 +69,65 @@ async function readList(id, nowPage) {
     const [rows] = await connection.execute(selectQuery, [id]);
 
     if (rows.length > 0) {
+      return { rows, nowPage, totlePage };
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.error('查詢時出錯:', error);
+    return error;
+  }
+}
+
+// 讀取（可指定ListId)
+async function readGiveList(listIds, nowPage) {
+  try {
+    const listIdsString = listIds.join(',');
+    // 計算起始行數
+    const startRow = (nowPage - 1) * 5;
+
+    // 查詢總行數
+    const countResult = [];
+
+    for (const listId of listIds) {
+      const deleteQuery =
+        'SELECT COUNT(*) as totalRows FROM listData WHERE id IN (?)';
+      const [result] = await connection.execute(deleteQuery, [listId]);
+      countResult.push(result[0]);
+    }
+    // 換算總頁數
+    const totalRowsOneCount = countResult.filter(
+      (result) => result.totalRows === 1
+    ).length;
+    const totlePage = Math.ceil(totalRowsOneCount / 5);
+
+    // 導入起始行數(ex:OFFSET 0為不忽略行數, OFFSET 5 忽略前5行)
+
+    const selectQuery = `
+    SELECT 
+    listData.id,
+    listData.userId,
+    listData.listTitle,
+    listData.listFinsh,
+    (listData.listTotal - listData.listFinsh) AS itemsUndo,
+    listData.listTotal,
+    DATE_FORMAT(listData.listCreateTime, '%Y-%m-%d %H:%i:%s') AS listCreateTime,
+    DATE_FORMAT(listData.listUpdateTime, '%Y-%m-%d %H:%i:%s') AS listUpdateTime,
+    JSON_ARRAYAGG(
+      JSON_OBJECT('itemsTitle', itemsData.itemsTitle)
+    ) AS toDoitems
+    FROM listData
+    LEFT JOIN itemsData ON listData.id = itemsData.listId
+    WHERE listData.id IN (${listIdsString})
+    GROUP BY listData.id, listData.userId, listData.listTitle, listData.listFinsh, listData.listTotal, listData.listCreateTime, listData.listUpdateTime
+    LIMIT 5 OFFSET ${startRow};
+    `;
+
+    const [rows] = await connection.execute(selectQuery);
+
+    if (rows.length > 0) {
+      console.log(rows, nowPage, totlePage);
+
       return { rows, nowPage, totlePage };
     } else {
       return [];
@@ -119,4 +178,5 @@ module.exports = {
   updatedList,
   deleteList,
   calculateItems,
+  readGiveList,
 };

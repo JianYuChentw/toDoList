@@ -31,7 +31,7 @@ async function createToDoItems(req, res) {
   }
 }
 
-// 刪除項目(含批次)
+// 刪除項目
 async function deleteToDoItems(req, res) {
   const itemsId = req.body.itemsId;
   const token = req.header.Authorization;

@@ -63,6 +63,16 @@ async function switchPage(req, res) {
   }
 }
 
+//讀取(依據List)
+async function searchList(req, res) {
+  const token = req.header.Authorization;
+  const access = tools.verifyToken(token);
+  if (access === null) {
+    return res.json({ loginStatus: false, message: '非登入狀態' });
+  }
+  //要加入讀取資料
+}
+
 module.exports = {
   toDolistFrontPage,
   switchPage,
