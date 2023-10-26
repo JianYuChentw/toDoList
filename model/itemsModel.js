@@ -1,4 +1,4 @@
-const { connection } = require('../data/data');
+const { connection } = require('../dataBase/data');
 
 // 更新序列
 async function updatedOrder(listId) {
@@ -31,6 +31,7 @@ async function updatedOrder(listId) {
   }
 }
 
+//時光機
 function formatDateTime(inputDateTime) {
   const inputDate = new Date(inputDateTime);
 
@@ -77,8 +78,6 @@ async function createItems(listId, itemsTitle) {
       itemsTitle,
       nowlistTotal + 1,
     ]);
-
-    console.log(result);
 
     return result.affectedRows === 1;
   } catch (error) {
@@ -305,6 +304,24 @@ async function updateSortOrder(id, newSortOrder) {
   }
 }
 
+// itemsId取得listId
+async function itemsIdcheckUserId(itemsId) {
+  try {
+    const itemsDataQuery = 'SELECT listId FROM itemsData WHERE id = ?';
+    const [itemsDataRows] = await connection.execute(itemsDataQuery, [itemsId]);
+
+    if (itemsDataRows && itemsDataRows.length > 0) {
+      const listId = itemsDataRows[0].listId;
+      return listId;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('取得listId時發生錯誤:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   createItems,
   readItems,
@@ -315,4 +332,5 @@ module.exports = {
   updateSortOrder,
   ItemsSchedule,
   updatedOrder,
+  itemsIdcheckUserId,
 };

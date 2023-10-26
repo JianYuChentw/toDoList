@@ -1,5 +1,5 @@
 const listModel = require('../model/listModel');
-const tools = require('../model/tool');
+const tools = require('../tool');
 
 //增新清單
 async function createToDoList(req, res) {
@@ -28,7 +28,7 @@ async function updatedToDoList(req, res) {
   const token = req.header.Authorization;
   try {
     const access = tools.verifyToken(token);
-    const checkPass = await tools.checkUserId(listId);
+    const checkPass = await listModel.checkUserId(listId);
     if (access === null) {
       return res.json({ loginStatus: false });
     }
@@ -62,7 +62,7 @@ async function deleteToDoList(req, res) {
   const token = req.header.Authorization;
   try {
     const access = tools.verifyToken(token);
-    const checkPass = await tools.checkUserId(listId[0]);
+    const checkPass = await listModel.checkUserId(listId[0]);
     const areAllNumbers = listId.every((item) => typeof item === 'number');
     if (access === null) {
       return res.json({ loginStatus: false });

@@ -1,4 +1,4 @@
-const tools = require('../model/tool');
+const tools = require('../tool');
 const listModel = require('../model/listModel');
 const itemsModel = require('../model/itemsModel');
 const tagModel = require('../model/tagModel');
@@ -21,7 +21,6 @@ async function MyToDoListPage(req, res) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
   }
   //要加入讀取資料
-
   try {
     const listData = await listModel.readList(access.userId, 1);
     const list = await listData.rows;
@@ -34,12 +33,12 @@ async function MyToDoListPage(req, res) {
   }
 }
 
-//讀取項目
+//讀取項目(指定清單)
 async function readToDoItems(req, res) {
   const { listId } = req.body;
   const token = req.header.Authorization;
   const access = tools.verifyToken(token);
-  const checkPass = await tools.checkUserId(listId);
+  const checkPass = await listModel.checkUserId(listId);
   console.log(checkPass);
   if (access === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });

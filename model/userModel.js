@@ -1,4 +1,4 @@
-const { connection } = require('../data/data');
+const { connection } = require('../dataBase/data');
 
 // 新增使用者
 async function createUser(account, password) {

@@ -1,4 +1,4 @@
-const { connection } = require('../data/data');
+const { connection } = require('../dataBase/data');
 
 // 數數器
 async function calculateItems(listId, schedule) {
@@ -172,6 +172,24 @@ async function deleteList(listIds) {
   }
 }
 
+//listId取得userId
+async function checkUserId(listId) {
+  try {
+    const listDataQuery = 'SELECT userId FROM listData WHERE id = ?';
+    const [listDataRows] = await connection.execute(listDataQuery, [listId]);
+
+    if (listDataRows && listDataRows.length > 0) {
+      const userId = listDataRows[0].userId;
+      return userId;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('取得userId時發生錯誤:', error);
+    throw error; //
+  }
+}
+
 module.exports = {
   createList,
   readList,
@@ -179,4 +197,5 @@ module.exports = {
   deleteList,
   calculateItems,
   readGiveList,
+  checkUserId,
 };

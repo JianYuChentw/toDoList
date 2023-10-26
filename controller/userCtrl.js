@@ -1,4 +1,4 @@
-const tools = require('../model/tool');
+const tools = require('../tool');
 const userModel = require('../model/userModel');
 
 //登入

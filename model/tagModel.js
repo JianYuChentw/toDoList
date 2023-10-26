@@ -1,5 +1,5 @@
-const { connection } = require('../data/data');
-const tools = require('./tool');
+const { connection } = require('../dataBase/data');
+const tools = require('../tool');
 
 //新增tag
 async function createTag(listId, tagContent) {
@@ -27,10 +27,11 @@ async function tagCheckRepeat(listId, tagContent) {
     listId,
     tagContent,
   ]);
-  return selectResult.affectedRows === 1;
+  return selectResult.length === 0;
 }
 
-tagCheckRepeat(8, 'qweqe');
+//刪除tag
+async function deleteTag(tagId) {}
 
 module.exports = {
   createTag,

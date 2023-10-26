@@ -1,5 +1,5 @@
 const itemsModel = require('../model/itemsModel');
-const tools = require('../model/tool');
+const tools = require('../tool');
 
 //新增項目
 async function createToDoItems(req, res) {
@@ -7,7 +7,7 @@ async function createToDoItems(req, res) {
   const token = req.header.Authorization;
   try {
     const access = tools.verifyToken(token);
-    const checkPass = await tools.checkUserId(listId);
+    const checkPass = await listModel.checkUserId(listId);
 
     if (access === null) {
       return res.json({ loginStatus: false, message: '非登入狀態' });
@@ -26,7 +26,7 @@ async function createToDoItems(req, res) {
     }
   } catch (error) {
     console.error('創建待辦項目失敗:', error);
-    // 返回伺服器錯誤的響應
+    // 返回伺服器錯誤
     return res.status(500).json({ createItems: false, message: '伺服器錯誤' });
   }
 }
@@ -37,8 +37,8 @@ async function deleteToDoItems(req, res) {
   const token = req.header.Authorization;
   try {
     const access = tools.verifyToken(token);
-    const listId = await tools.itemsIdcheckUserId(itemsId);
-    const checkPass = await tools.checkUserId(listId);
+    const listId = await itemsModel.itemsIdcheckUserId(itemsId);
+    const checkPass = await listModel.checkUserId(listId);
     if (access === null) {
       return res.json({ loginStatus: false, message: '非登入狀態' });
     }
@@ -72,8 +72,8 @@ async function updateToDoItems(req, res) {
   const token = req.header.Authorization;
   try {
     const access = tools.verifyToken(token);
-    const listId = await tools.itemsIdcheckUserId(itemsId);
-    const checkPass = await tools.checkUserId(listId);
+    const listId = await itemsModel.itemsIdcheckUserId(itemsId);
+    const checkPass = await listModel.checkUserId(listId);
     if (access === null) {
       return res.json({ loginStatus: false, message: '非登入狀態' });
     }
@@ -107,8 +107,8 @@ async function updatedItemsSchedule(req, res) {
   const token = req.header.Authorization;
   try {
     const access = tools.verifyToken(token);
-    const listId = await tools.itemsIdcheckUserId(itemsId);
-    const checkPass = await tools.checkUserId(listId);
+    const listId = await itemsModel.itemsIdcheckUserId(itemsId);
+    const checkPass = await listModel.checkUserId(listId);
     if (access === null) {
       return res.json({ loginStatus: false, message: '非登入狀態' });
     }
@@ -125,7 +125,7 @@ async function updatedItemsSchedule(req, res) {
     }
   } catch (error) {
     console.error('更新項目進度失敗:', error);
-    // 返回伺服器錯誤的響應
+    // 返回伺服器錯誤
     return res
       .status(500)
       .json({ updateSchedule: false, message: '伺服器錯誤' });
@@ -138,8 +138,8 @@ async function changeItemSort(req, res) {
   const token = req.header.Authorization;
   try {
     const access = tools.verifyToken(token);
-    const listId = await tools.itemsIdcheckUserId(itemsId);
-    const checkPass = await tools.checkUserId(listId);
+    const listId = await itemsModel.itemsIdcheckUserId(itemsId);
+    const checkPass = await listModel.checkUserId(listId);
     if (access === null) {
       return res.json({ loginStatus: false, message: '非登入狀態' });
     }
@@ -166,7 +166,7 @@ async function changeItemSort(req, res) {
     }
   } catch (error) {
     nsole.error('異動待辦項目失敗:', error);
-    // 返回伺服器錯誤的響應
+    // 返回伺服器錯誤
     return res
       .status(500)
       .json({ sortOrderUpdate: false, message: '伺服器錯誤' });
