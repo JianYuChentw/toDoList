@@ -31,6 +31,7 @@ async function updatedOrder(listId) {
   }
 }
 
+//時光機
 function formatDateTime(inputDateTime) {
   const inputDate = new Date(inputDateTime);
 
@@ -77,8 +78,6 @@ async function createItems(listId, itemsTitle) {
       itemsTitle,
       nowlistTotal + 1,
     ]);
-
-    console.log(result);
 
     return result.affectedRows === 1;
   } catch (error) {
