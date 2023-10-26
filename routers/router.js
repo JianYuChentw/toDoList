@@ -4,6 +4,7 @@ const toDoListPage = require('../controller/pageCtrl');
 const toDoList = require('../controller/listCtrl');
 const toDoitems = require('../controller/itemsCtrl');
 const user = require('../controller/userCtrl');
+const toDoTag = require('../controller/tagCtrl');
 
 / 頁面 /;
 //登入頁 pass
@@ -41,7 +42,9 @@ router.put('/updateMyToDoList', toDoList.updatedToDoList);
 //刪除清單
 router.delete('/removeToDoList', toDoList.deleteToDoList);
 
-//清單tag
+//新增清單tag
+router.post('/createMyToDoTag', toDoTag.createToDoTag);
+
 //清單tag篩選
 
 / 項目功能 /;

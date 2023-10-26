@@ -4,9 +4,9 @@ const userModel = require('../model/userModel');
 //登入
 async function login(req, res) {
   const { account, password } = req.body;
-  const chekAccountResult = await userModel.repeatUser(account);
-  const chekPasswordResult = await userModel.chekPassword(password);
   try {
+    const chekAccountResult = await userModel.repeatUser(account);
+    const chekPasswordResult = await userModel.chekPassword(password);
     if (chekAccountResult.success || !chekPasswordResult.success) {
       console.log('帳號或密碼有誤！');
       return res.send({
@@ -29,11 +29,11 @@ async function login(req, res) {
 //註冊
 async function register(req, res) {
   const { account, password } = req.body;
-  const chekAccountResult = await userModel.repeatUser(account);
-  if (!chekAccountResult.success) {
-    return res.json({ registerResult: false, message: '帳號已存在' });
-  }
   try {
+    const chekAccountResult = await userModel.repeatUser(account);
+    if (!chekAccountResult.success) {
+      return res.json({ registerResult: false, message: '帳號已存在' });
+    }
     await userModel.createUser(account, password);
     return res.json({ registerResult: true, message: '註冊成功' });
   } catch (error) {

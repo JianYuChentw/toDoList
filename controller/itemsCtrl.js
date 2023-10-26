@@ -5,16 +5,16 @@ const tools = require('../model/tool');
 async function createToDoItems(req, res) {
   const { listId, itemsTitle } = req.body;
   const token = req.header.Authorization;
-  const access = tools.verifyToken(token);
-  const checkPass = await tools.checkUserId(listId);
-  console.log(checkPass);
-  if (access === null) {
-    return res.json({ loginStatus: false, message: '非登入狀態' });
-  }
-  if (checkPass != access.userId) {
-    return res.status(200).json({ createItems: false, message: '無此清單' });
-  }
   try {
+    const access = tools.verifyToken(token);
+    const checkPass = await tools.checkUserId(listId);
+
+    if (access === null) {
+      return res.json({ loginStatus: false, message: '非登入狀態' });
+    }
+    if (checkPass != access.userId) {
+      return res.status(200).json({ createItems: false, message: '無此清單' });
+    }
     const createItemsResult = await itemsModel.createItemsAndListSchedule(
       listId,
       itemsTitle
@@ -35,21 +35,22 @@ async function createToDoItems(req, res) {
 async function deleteToDoItems(req, res) {
   const itemsId = req.body.itemsId;
   const token = req.header.Authorization;
-  const access = tools.verifyToken(token);
-  const listId = await tools.itemsIdcheckUserId(itemsId);
-  const checkPass = await tools.checkUserId(listId);
-  if (access === null) {
-    return res.json({ loginStatus: false, message: '非登入狀態' });
-  }
-  if (isNaN(itemsId)) {
-    return res
-      .status(200)
-      .json({ removeItems: false, message: '輸入非正整數型別' });
-  }
-  if (checkPass != access.userId || !checkPass) {
-    return res.status(200).json({ removeItems: false, message: '無此項目' });
-  }
   try {
+    const access = tools.verifyToken(token);
+    const listId = await tools.itemsIdcheckUserId(itemsId);
+    const checkPass = await tools.checkUserId(listId);
+    if (access === null) {
+      return res.json({ loginStatus: false, message: '非登入狀態' });
+    }
+    if (isNaN(itemsId)) {
+      return res
+        .status(200)
+        .json({ removeItems: false, message: '輸入非正整數型別' });
+    }
+    if (checkPass != access.userId || !checkPass) {
+      return res.status(200).json({ removeItems: false, message: '無此項目' });
+    }
+
     const deleteResult = await itemsModel.deleteItems(itemsId);
     if (!deleteResult) {
       return res
@@ -69,21 +70,21 @@ async function deleteToDoItems(req, res) {
 async function updateToDoItems(req, res) {
   const { itemsTitle, itemsId } = req.body;
   const token = req.header.Authorization;
-  const access = tools.verifyToken(token);
-  const listId = await tools.itemsIdcheckUserId(itemsId);
-  const checkPass = await tools.checkUserId(listId);
-  if (access === null) {
-    return res.json({ loginStatus: false, message: '非登入狀態' });
-  }
-  if (isNaN(itemsId)) {
-    return res
-      .status(200)
-      .json({ updatedItems: false, message: '輸入非正整數型別' });
-  }
-  if (checkPass != access.userId || !checkPass) {
-    return res.status(200).json({ updatedItems: false, message: '無此項目' });
-  }
   try {
+    const access = tools.verifyToken(token);
+    const listId = await tools.itemsIdcheckUserId(itemsId);
+    const checkPass = await tools.checkUserId(listId);
+    if (access === null) {
+      return res.json({ loginStatus: false, message: '非登入狀態' });
+    }
+    if (isNaN(itemsId)) {
+      return res
+        .status(200)
+        .json({ updatedItems: false, message: '輸入非正整數型別' });
+    }
+    if (checkPass != access.userId || !checkPass) {
+      return res.status(200).json({ updatedItems: false, message: '無此項目' });
+    }
     const updatedItemsResult = await itemsModel.updatedItems(
       itemsId,
       itemsTitle
@@ -104,16 +105,18 @@ async function updateToDoItems(req, res) {
 async function updatedItemsSchedule(req, res) {
   const { itemsId } = req.body;
   const token = req.header.Authorization;
-  const access = tools.verifyToken(token);
-  const listId = await tools.itemsIdcheckUserId(itemsId);
-  const checkPass = await tools.checkUserId(listId);
-  if (access === null) {
-    return res.json({ loginStatus: false, message: '非登入狀態' });
-  }
-  if (checkPass != access.userId || !checkPass) {
-    return res.status(200).json({ updateSchedule: false, message: '無此項目' });
-  }
   try {
+    const access = tools.verifyToken(token);
+    const listId = await tools.itemsIdcheckUserId(itemsId);
+    const checkPass = await tools.checkUserId(listId);
+    if (access === null) {
+      return res.json({ loginStatus: false, message: '非登入狀態' });
+    }
+    if (checkPass != access.userId || !checkPass) {
+      return res
+        .status(200)
+        .json({ updateSchedule: false, message: '無此項目' });
+    }
     const changeItem = await itemsModel.ItemsSchedule(itemsId);
     if (!changeItem) {
       return res.json({ updateSchedule: false, message: '更新項目進度失敗' });
@@ -133,23 +136,23 @@ async function updatedItemsSchedule(req, res) {
 async function changeItemSort(req, res) {
   const { itemsId, sortOrder } = req.body;
   const token = req.header.Authorization;
-  const access = tools.verifyToken(token);
-  const listId = await tools.itemsIdcheckUserId(itemsId);
-  const checkPass = await tools.checkUserId(listId);
-  if (access === null) {
-    return res.json({ loginStatus: false, message: '非登入狀態' });
-  }
-  if (isNaN(itemsId) || isNaN(sortOrder)) {
-    return res
-      .status(200)
-      .json({ sortOrderUpdate: false, message: '輸入非正整數型別' });
-  }
-  if (checkPass != access.userId || !checkPass) {
-    return res
-      .status(200)
-      .json({ sortOrderUpdate: false, message: '無此項目' });
-  }
   try {
+    const access = tools.verifyToken(token);
+    const listId = await tools.itemsIdcheckUserId(itemsId);
+    const checkPass = await tools.checkUserId(listId);
+    if (access === null) {
+      return res.json({ loginStatus: false, message: '非登入狀態' });
+    }
+    if (isNaN(itemsId) || isNaN(sortOrder)) {
+      return res
+        .status(200)
+        .json({ sortOrderUpdate: false, message: '輸入非正整數型別' });
+    }
+    if (checkPass != access.userId || !checkPass) {
+      return res
+        .status(200)
+        .json({ sortOrderUpdate: false, message: '無此項目' });
+    }
     const changeItemsResult = await itemsModel.updateSortOrder(
       itemsId,
       sortOrder

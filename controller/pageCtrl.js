@@ -1,7 +1,7 @@
 const tools = require('../model/tool');
-const userModel = require('../model/userModel');
 const listModel = require('../model/listModel');
 const itemsModel = require('../model/itemsModel');
+const tagModel = require('../model/tagModel');
 
 // 登入頁
 async function toDolistFrontPage(req, res) {
@@ -114,4 +114,5 @@ module.exports = {
   switchPage,
   MyToDoListPage,
   readToDoItems,
+  searchList,
 };

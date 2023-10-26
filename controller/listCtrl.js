@@ -5,12 +5,11 @@ const tools = require('../model/tool');
 async function createToDoList(req, res) {
   const listTitle = req.body.title;
   const token = req.header.Authorization;
-  const access = tools.verifyToken(token);
-  if (access === null) {
-    return res.json({ loginStatus: false });
-  }
-
   try {
+    const access = tools.verifyToken(token);
+    if (access === null) {
+      return res.json({ loginStatus: false });
+    }
     const createResult = await listModel.createList(access.userId, listTitle);
     if (!createResult) {
       return res.json({ createList: false, message: '新增清單失敗' });
@@ -27,21 +26,20 @@ async function createToDoList(req, res) {
 async function updatedToDoList(req, res) {
   const { listId, listTitle } = req.body;
   const token = req.header.Authorization;
-  const access = tools.verifyToken(token);
-  const checkPass = await tools.checkUserId(listId);
-  if (access === null) {
-    return res.json({ loginStatus: false });
-  }
-  if (isNaN(listId)) {
-    return res
-      .status(200)
-      .json({ updatedList: false, message: '輸入非正整數型別' });
-  }
-  if (checkPass != access.userId || !checkPass) {
-    return res.status(200).json({ updatedList: false, message: '無此清單' });
-  }
-
   try {
+    const access = tools.verifyToken(token);
+    const checkPass = await tools.checkUserId(listId);
+    if (access === null) {
+      return res.json({ loginStatus: false });
+    }
+    if (isNaN(listId)) {
+      return res
+        .status(200)
+        .json({ updatedList: false, message: '輸入非正整數型別' });
+    }
+    if (checkPass != access.userId || !checkPass) {
+      return res.status(200).json({ updatedList: false, message: '無此清單' });
+    }
     const updateResult = await listModel.updatedList(listId, listTitle);
     if (!updateResult) {
       return res
@@ -62,21 +60,22 @@ async function updatedToDoList(req, res) {
 async function deleteToDoList(req, res) {
   const listId = req.body.listId;
   const token = req.header.Authorization;
-  const access = tools.verifyToken(token);
-  const checkPass = await tools.checkUserId(listId[0]);
-  const areAllNumbers = listId.every((item) => typeof item === 'number');
-  if (access === null) {
-    return res.json({ loginStatus: false });
-  }
-  if (!areAllNumbers) {
-    return res
-      .status(200)
-      .json({ removeList: false, message: '輸入非正整數型別' });
-  }
-  if (checkPass != access.userId || !checkPass) {
-    return res.status(200).json({ removeList: false, message: '無此清單' });
-  }
   try {
+    const access = tools.verifyToken(token);
+    const checkPass = await tools.checkUserId(listId[0]);
+    const areAllNumbers = listId.every((item) => typeof item === 'number');
+    if (access === null) {
+      return res.json({ loginStatus: false });
+    }
+    if (!areAllNumbers) {
+      return res
+        .status(200)
+        .json({ removeList: false, message: '輸入非正整數型別' });
+    }
+    if (checkPass != access.userId || !checkPass) {
+      return res.status(200).json({ removeList: false, message: '無此清單' });
+    }
+
     const deleteResult = await listModel.deleteList(listId, access.userId);
     if (!deleteResult) {
       return res
