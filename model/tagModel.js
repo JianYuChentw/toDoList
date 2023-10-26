@@ -27,10 +27,8 @@ async function tagCheckRepeat(listId, tagContent) {
     listId,
     tagContent,
   ]);
-  return selectResult.affectedRows === 1;
+  return selectResult.length === 0;
 }
-
-tagCheckRepeat(8, 'qweqe');
 
 module.exports = {
   createTag,

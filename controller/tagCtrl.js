@@ -19,6 +19,7 @@ async function createToDoTag(req, res) {
       return res.status(200).json({ createTag: false, message: '無此清單' });
     }
     const toDoTagCheak = await tagModel.tagCheckRepeat(listId, tagContent);
+
     if (!toDoTagCheak) {
       return res
         .status(200)
