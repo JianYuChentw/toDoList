@@ -1,6 +1,7 @@
 const tools = require('../model/tool');
 const userModel = require('../model/userModel');
 const listModel = require('../model/listModel');
+const itemsModel = require('../model/itemsModel');
 
 // 登入頁
 async function toDolistFrontPage(req, res) {
@@ -33,6 +34,41 @@ async function MyToDoListPage(req, res) {
   }
 }
 
+//讀取項目
+async function readToDoItems(req, res) {
+  const { listId } = req.body;
+  const token = req.header.Authorization;
+  const access = tools.verifyToken(token);
+  const checkPass = await tools.checkUserId(listId);
+  console.log(checkPass);
+  if (access === null) {
+    return res.json({ loginStatus: false, message: '非登入狀態' });
+  }
+  if (isNaN(listId)) {
+    return res
+      .status(200)
+      .json({ readedItems: false, message: '輸入非正整數型別' });
+  }
+  if (checkPass != access.userId || !checkPass) {
+    return res.status(200).json({ readedItems: false, message: '無此項目' });
+  }
+  try {
+    const readItemsResult = await itemsModel.readItems(listId);
+    if (!readItemsResult) {
+      return res.json({
+        readedItems: false,
+        message: '讀取項目失敗或清單內無內容',
+      });
+    } else {
+      return res.json({ loginStatus: true, toDoitems: readItemsResult });
+    }
+  } catch (error) {
+    console.error('讀取待辦項目失敗:', error);
+    // 返回伺服器錯誤的響應
+    return res.status(500).json({ readedItems: false, message: '伺服器錯誤' });
+  }
+}
+
 // 切換頁
 async function switchPage(req, res) {
   const token = req.header.Authorization;
@@ -44,13 +80,13 @@ async function switchPage(req, res) {
   if (isNaN(goalPage)) {
     return res
       .status(200)
-      .json({ updatedItems: false, message: '輸入非正整數型別' });
+      .json({ gettoDoList: false, message: '輸入非正整數型別' });
   }
 
   try {
     const listData = await listModel.readList(access.userId, goalPage);
     if (listData.length === 0) {
-      return res.json({ loginStatus: true, toDoList: false });
+      return res.json({ gettoDoList: false, message: '無此頁面' });
     }
     const list = await listData.rows;
     const nowPage = await listData.nowPage;
@@ -77,4 +113,5 @@ module.exports = {
   toDolistFrontPage,
   switchPage,
   MyToDoListPage,
+  readToDoItems,
 };

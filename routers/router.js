@@ -16,7 +16,7 @@ router.get('/registerMyToDoListPage');
 router.get('/MyToDoList', toDoListPage.MyToDoListPage);
 
 //個人to-do items(清單頁內)
-router.get('/MyToDoItems', toDoitems.readToDoItems);
+router.get('/MyToDoListShow', toDoListPage.readToDoItems);
 
 / 頁面功能 /;
 //登入 pass

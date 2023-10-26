@@ -129,38 +129,6 @@ async function updatedItemsSchedule(req, res) {
   }
 }
 
-//讀取項目
-async function readToDoItems(req, res) {
-  const { listId } = req.body;
-  const token = req.header.Authorization;
-  const access = tools.verifyToken(token);
-  const checkPass = await tools.checkUserId(listId);
-  console.log(checkPass);
-  if (access === null) {
-    return res.json({ loginStatus: false, message: '非登入狀態' });
-  }
-  if (isNaN(listId)) {
-    return res
-      .status(200)
-      .json({ readedItems: false, message: '輸入非正整數型別' });
-  }
-  if (checkPass != access.userId || !checkPass) {
-    return res.status(200).json({ readedItems: false, message: '無此項目' });
-  }
-  try {
-    const readItemsResult = await itemsModel.readItems(listId);
-    if (!readItemsResult) {
-      return res.json({ readedItems: false, message: '讀取項目失敗' });
-    } else {
-      return res.json({ loginStatus: true, toDoitems: readItemsResult });
-    }
-  } catch (error) {
-    onsole.error('讀取待辦項目失敗:', error);
-    // 返回伺服器錯誤的響應
-    return res.status(500).json({ readedItems: false, message: '伺服器錯誤' });
-  }
-}
-
 //項目排序異動
 async function changeItemSort(req, res) {
   const { itemsId, sortOrder } = req.body;
@@ -206,7 +174,6 @@ module.exports = {
   createToDoItems,
   updateToDoItems,
   deleteToDoItems,
-  readToDoItems,
   changeItemSort,
   updatedItemsSchedule,
 };

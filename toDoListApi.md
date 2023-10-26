@@ -58,6 +58,7 @@
       "loginStatus":true, //Boolean
       "toDoList":[{
           "id":1, // Int
+          "userId": 1,
           "listTitle":"待辦清單1", //String
           "listCreatTime":"2023/10/24 上午9:02:23", //datetime
           "listLastUpDateTime":"2023/10/24 上午10:04:00", //datetime
@@ -70,6 +71,7 @@
               ],  //Array
           },{
           "id":2, // Int
+          "userId": 1,
           "listTitle":"待辦清單2", //String
           "listCreatTime":"2023/10/24 上午9:04:54", //datetime
           "listLastUpDateTime":"2023/10/24 上午10:02:48", //datetime
@@ -77,9 +79,8 @@
           "itemsUndo":5, //Int
           "itemsTotal":10, //Int
           "toDoitems":[{
-              "itemsTitle":"待辦項目1"},{ //String
-              "itemsTitle":"待辦項目2"} //String
-              ], //Array
+              "itemsTitle":"null" //無項目時
+          }], //Array
           },
         ],  //Array
       "nowPage":1, //Int    
@@ -112,7 +113,7 @@
 >指定清單瀏覽，會展現內含項目
 
 - **URL**
-  /MyToDoList/:listTitle
+  /MyToDoListShow
 
 - **Method:**
 
@@ -120,7 +121,7 @@
 
 - **URL Params**
 
-  `listTitle`
+  `none`
 
 -  **Required:**
 
@@ -148,8 +149,8 @@
           "itemsSortOder": 4,//Num
           "itemsTitle":"待辦項目2", //String
           "ItemsSchedule":true, //Boolean
-          "ItemsCreatTime":"2023/10/24 上午9:04:54", //DateTime
-          "ItemsLastUpDateTime":"2023/10/24 上午10:02:48", //DateTime
+          "ItemsCreatTime":"2023-10-26 13:48:34", //DateTime
+          "ItemsLastUpDateTime":"2023-10-26 13:48:34", //DateTime
            } 
        ], //Array
     }
@@ -164,6 +165,11 @@
       {
         "loginStatus": false, //Boolean
         "message": "非登入狀態" //String
+      }
+      or
+      {
+        "readedItems": false,
+        "message": "讀取項目失敗或清單內無內容"
       }
     ```
 
@@ -338,6 +344,7 @@
     `(返回下一頁資料)`
     ```json
     {
+        "loginStatus": true,
         "toDoList":[{
             "listTitle":"待辦清單1", //String
             "listCreatTime":"2023-10-16", //DateTime
@@ -383,8 +390,8 @@
     }
     or
     {
-    "loginStatus": true, //Boolean
-    "toDoList": false //Boolean
+    "gettoDoList": false, //Boolean
+    "message": "無此頁面" //Stringing
     }
     ```
 
@@ -442,6 +449,11 @@
         "createList":false, //Boolean
         "message":"新增清單失敗" //Stringing
       }
+      or
+      {
+        "loginStatus": false, //Boolean
+        "message": "非登入狀態" //String
+      }
     ```
 
 ## **更新待辦清單**
@@ -496,6 +508,11 @@
       {
         "updateList":true,  //Boolean
         "message": "更新清單失敗" //String
+      }
+        or
+      {
+        "loginStatus": false, //Boolean
+        "message": "非登入狀態" //String
       }
     ```
 
@@ -555,6 +572,11 @@
         "removeList":true,  //Boolean
         "message": "刪除清單失敗"
       }
+      or
+      {
+        "loginStatus": false, //Boolean
+        "message": "非登入狀態" //String
+      }
     ```
 
 
@@ -613,6 +635,11 @@
         "createItems":false, //Boolean
         "message":"新增項目失敗" //String
       }
+      or
+      {
+        "loginStatus": false, //Boolean
+        "message": "非登入狀態" //String
+      }
     ```
 
 ## **更新待辦項目內容**
@@ -649,7 +676,7 @@
     ```json
       {
         "updateItems":true,  //Boolean
-        "message":"更新項目失敗" //String
+        "message":"更新項目成功" //String
       }
       
     ```
@@ -668,6 +695,11 @@
       {
         "updateItems":false, //Boolean
         "message":"更新項目失敗" //String
+      }
+      or
+      {
+        "loginStatus": false, //Boolean
+        "message": "非登入狀態" //String
       }
     ```
 
@@ -725,6 +757,11 @@
         "removeItems":false, //Boolean
         "message":"刪除項目失敗" //String
       }
+      or
+      {
+        "loginStatus": false, //Boolean
+        "message": "非登入狀態" //String
+      }
     ```
 
 ## **更新待辦項進度**
@@ -780,6 +817,11 @@
         "updateItemsSchedule":false, //Boolean
         "message":"更新項目進度失敗" //String
       }
+      or
+      {
+        "loginStatus": false, //Boolean
+        "message": "非登入狀態" //String
+      }
     ```
 
 
@@ -823,6 +865,7 @@
     ```
 
 - **Error Response:**
+- 
   >更新失敗
   - **Code:** 400 <br />
     **Content:**
@@ -832,10 +875,15 @@
         "gettoDoList":false, //Boolean
         "message":"伺服器錯誤" //String
       }
-    or
+      or
       {
         "sortOrderUpdate":false, //Boolean
         "message":"更新項目失敗" //String
+      }
+      or
+      {
+        "loginStatus": false, //Boolean
+        "message": "非登入狀態" //String
       }
     ```
 
