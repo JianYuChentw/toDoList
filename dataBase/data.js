@@ -5,7 +5,7 @@ const connection = mysql.createPool({
   host: '127.0.0.1',
   user: 'root',
   password: 'pass123456',
-  database: 'MyToDoList',
+  database: 'my_to_do_list',
 });
 
 // 測試資料庫連線
