@@ -1,4 +1,3 @@
-const { connection } = require('./database/data');
 const jwt = require('jsonwebtoken');
 //! token -----------------------------
 
