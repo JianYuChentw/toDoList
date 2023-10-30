@@ -18,7 +18,7 @@ async function createUser(account, password) {
 }
 
 // 重複使用者檢查
-async function repeatUser(account) {
+async function userIsRepeat(account) {
   try {
     const repeatResult = 'SELECT * FROM user_data WHERE account = ?';
     const [results] = await connection.execute(repeatResult, [account]);
@@ -33,37 +33,25 @@ async function repeatUser(account) {
   }
 }
 
-//密碼核對
-async function chekPassword(password) {
+//核對是否為會員
+async function checkIsMember(account, password) {
   try {
-    const repeatResult = 'SELECT * FROM user_data WHERE password = ?';
-    const [results] = await connection.execute(repeatResult, [password]);
+    const query = 'SELECT id FROM user_data WHERE account = ? AND password = ?';
+    const [results] = await connection.execute(query, [account, password]);
+
     if (results.length > 0) {
-      return { success: true, message: '密碼正確' };
+      return { success: true, userId: results[0].id, message: '登入成功' };
     } else {
-      return { success: false, message: '密碼錯誤' };
+      return { success: false, id: null, message: '帳號或密碼錯誤' };
     }
   } catch (error) {
-    console.error('檢查密碼data時出錯:', error);
-    throw new Error('檢查密碼data時出錯');
-  }
-}
-
-//取得userId
-async function getUserById(account) {
-  try {
-    const selectQuery = 'SELECT id FROM user_data WHERE account = ?';
-    const [rows] = await connection.execute(selectQuery, [account]);
-    return rows[0].id;
-  } catch (error) {
-    console.error('取得user_id發生錯誤:', error);
-    return null;
+    console.error('檢查帳號或密碼錯誤:', error);
+    throw new Error('檢查帳號或密碼錯誤');
   }
 }
 
 module.exports = {
   createUser,
-  repeatUser,
-  chekPassword,
-  getUserById,
+  userIsRepeat,
+  checkIsMember,
 };

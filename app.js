@@ -7,6 +7,7 @@ const port = 3000;
 
 // cors允許所有
 app.use(cors());
+
 app.use(
   session({
     secret: 'toDoLost', // key for session

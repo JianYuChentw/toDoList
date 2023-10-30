@@ -1,24 +1,6 @@
 const { connection } = require('../database/data');
 const tool = require('../tool');
 
-// 數數器
-async function calculateItems(listId, schedule) {
-  try {
-    const countQuery =
-      'SELECT COUNT(*) AS count FROM items_data WHERE list_id = ? AND items_schedule = ?';
-    const [rows] = await connection.execute(countQuery, [listId, schedule]);
-    if (rows.length > 0) {
-      const count = rows[0].count;
-      return count;
-    } else {
-      return 0;
-    }
-  } catch (error) {
-    console.error('完成度計數器發生錯誤:', error);
-    return error;
-  }
-}
-
 // 新增
 async function createList(userId, listTitle) {
   try {
@@ -159,33 +141,31 @@ async function updatedList(listId, listTitle) {
 }
 
 // 刪除
-async function deleteList(listIds) {
+async function deleteLists(listIds) {
   try {
-    const results = [];
-
-    for (const listId of listIds) {
-      const deleteQuery = 'DELETE FROM list_data WHERE id = ?';
-      const [result] = await connection.execute(deleteQuery, [listId]);
-      results.push(result.affectedRows > 0);
+    if (listIds.length === 0) {
+      return false;
     }
-    return results.every((result) => result);
+    const listIdsStr = listIds.join(',');
+    const deleteQuery = `DELETE FROM list_data WHERE id IN (${listIdsStr})`;
+    const [result] = await connection.execute(deleteQuery);
+    return result.affectedRows > 0;
   } catch (error) {
     console.error('清單data刪除失敗:', error);
     throw new Error('清單data刪除失敗');
   }
 }
 
-//listId取得userId
-async function checkUserId(listId) {
+//確認清單是否為本人
+async function checkIsParty(id, listId) {
   try {
     const listDataQuery = 'SELECT user_id FROM list_data WHERE id = ?';
     const [listDataRows] = await connection.execute(listDataQuery, [listId]);
 
     if (listDataRows && listDataRows.length > 0) {
       const userId = listDataRows[0].user_id;
-      return userId;
-    } else {
-      return null;
+
+      return id === userId;
     }
   } catch (error) {
     console.error('data取得userId時發生錯誤:', error);
@@ -197,8 +177,7 @@ module.exports = {
   createList,
   readList,
   updatedList,
-  deleteList,
-  calculateItems,
+  deleteLists,
   readGiveList,
-  checkUserId,
+  checkIsParty,
 };

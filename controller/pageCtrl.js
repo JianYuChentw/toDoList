@@ -7,7 +7,6 @@ const tagModel = require('../model/tagModel');
 async function toDolistFrontPage(req, res) {
   const token = req.session.token;
   const access = tools.verifyToken(token);
-  console.log(access);
   if (access !== null) {
     return res.json({ loginStatus: true });
   }
@@ -16,14 +15,10 @@ async function toDolistFrontPage(req, res) {
 
 // 個人頁
 async function MyToDoListPage(req, res) {
-  const token = req.session.token;
-  const access = tools.verifyToken(token);
-  if (access === null) {
-    return res.json({ loginStatus: false, message: '非登入狀態' });
-  }
+  const userId = tools.verifyToken(req.session.token).userId;
   //要加入讀取資料
   try {
-    const listData = await listModel.readList(access.userId, 1);
+    const listData = await listModel.readList(userId, 1);
     const list = await listData.rows;
     const nowPage = await listData.nowPage;
     const totlePage = await listData.totlePage;
@@ -37,21 +32,19 @@ async function MyToDoListPage(req, res) {
 //讀取項目(指定清單)
 async function readToDoItems(req, res) {
   const { listId } = req.body;
-  const token = req.session.token;
-  const access = tools.verifyToken(token);
-  const checkPass = await listModel.checkUserId(listId);
-  if (access === null) {
-    return res.json({ loginStatus: false, message: '非登入狀態' });
-  }
+
   if (isNaN(listId)) {
     return res
       .status(200)
       .json({ readedItems: false, message: '輸入非正整數型別' });
   }
-  if (checkPass != access.userId || !checkPass) {
-    return res.status(200).json({ readedItems: false, message: '無此項目' });
-  }
   try {
+    const userId = tools.verifyToken(req.session.token).userId;
+    const isParty = await listModel.checkIsParty(userId, listId);
+
+    if (!isParty) {
+      return res.status(200).json({ readedItems: false, message: '無此項目' });
+    }
     const readItemsResult = await itemsModel.readItems(listId);
     if (!readItemsResult) {
       return res.json({
@@ -73,20 +66,15 @@ async function readToDoItems(req, res) {
 
 // 切換頁
 async function switchPage(req, res) {
-  const token = req.session.token;
-  const access = tools.verifyToken(token);
   const goalPage = req.body.goalPage;
-  if (access === null) {
-    return res.json({ loginStatus: false, message: '非登入狀態' });
-  }
   if (isNaN(goalPage)) {
     return res
       .status(200)
       .json({ gettoDoList: false, message: '輸入非正整數型別' });
   }
-
   try {
-    const listData = await listModel.readList(access.userId, goalPage);
+    const userId = tools.verifyToken(req.session.token).userId;
+    const listData = await listModel.readList(userId, goalPage);
     if (listData.length === 0) {
       return res.json({ gettoDoList: false, message: '無此頁面' });
     }
@@ -101,20 +89,9 @@ async function switchPage(req, res) {
   }
 }
 
-//讀取(依據List)
-async function searchList(req, res) {
-  const token = req.session.token;
-  const access = tools.verifyToken(token);
-  if (access === null) {
-    return res.json({ loginStatus: false, message: '非登入狀態' });
-  }
-  //要加入讀取資料
-}
-
 module.exports = {
   toDolistFrontPage,
   switchPage,
   MyToDoListPage,
   readToDoItems,
-  searchList,
 };

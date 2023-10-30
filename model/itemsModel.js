@@ -352,7 +352,7 @@ async function updateSortOrder(id, newSortOrder) {
 }
 
 // itemsId取得listId
-async function itemsIdcheckUserId(itemsId) {
+async function getListIdByItemsId(itemsId) {
   try {
     const itemsDataQuery = 'SELECT list_id FROM items_data WHERE id = ?';
     const [itemsDataRows] = await connection.execute(itemsDataQuery, [itemsId]);
@@ -379,6 +379,6 @@ module.exports = {
   updateSortOrder,
   ItemsSchedule,
   updatedOrder,
-  itemsIdcheckUserId,
+  getListIdByItemsId,
   updatedItemsFinish,
 };

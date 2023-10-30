@@ -5,9 +5,8 @@ const userModel = require('../model/userModel');
 async function login(req, res) {
   const { account, password } = req.body;
   try {
-    const chekAccountResult = await userModel.repeatUser(account);
-    const chekPasswordResult = await userModel.chekPassword(password);
-    if (chekAccountResult.success || !chekPasswordResult.success) {
+    const chekMemberResult = await userModel.checkIsMember(account, password);
+    if (!chekMemberResult.success) {
       console.log('帳號或密碼有誤！');
       return res.send({
         loginStatus: false,
@@ -15,7 +14,7 @@ async function login(req, res) {
       });
     }
     ///給與權限動作
-    const userId = await userModel.getUserById(account);
+    const userId = await chekMemberResult.userId;
     const token = tools.makeToken({ userId }, 1200); //20min過期
     req.session.token = token;
 
@@ -31,8 +30,8 @@ async function login(req, res) {
 async function register(req, res) {
   const { account, password } = req.body;
   try {
-    const chekAccountResult = await userModel.repeatUser(account);
-    if (!chekAccountResult.success) {
+    const userIsRepeat = await userModel.userIsRepeat(account);
+    if (!userIsRepeat.success) {
       return res.json({ registerResult: false, message: '帳號已存在' });
     }
     await userModel.createUser(account, password);
@@ -48,9 +47,6 @@ async function register(req, res) {
 
 //登出
 function logOut(req, res) {
-  const userKey = req.header.Authorization;
-  if (userKey === null)
-    return res.json({ loginStatus: false, message: '非登入狀態' });
   delete req.session.token;
   console.log('已登出');
   res.json({ loginStatus: false, message: '登出成功' });
