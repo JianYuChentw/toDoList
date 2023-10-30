@@ -17,7 +17,8 @@ async function login(req, res) {
     ///給與權限動作
     const userId = await userModel.getUserById(account);
     const token = tools.makeToken({ userId }, 1200); //20min過期
-    req.header.Authorization = token;
+    req.session.token = token;
+
     console.log('登入成功');
     return res.json({ loginStatus: true, message: '登入成功' });
   } catch (error) {
@@ -50,7 +51,7 @@ function logOut(req, res) {
   const userKey = req.header.Authorization;
   if (userKey === null)
     return res.json({ loginStatus: false, message: '非登入狀態' });
-  delete req.header.Authorization;
+  delete req.session.token;
   console.log('已登出');
   res.json({ loginStatus: false, message: '登出成功' });
 }

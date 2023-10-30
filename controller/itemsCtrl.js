@@ -1,10 +1,11 @@
 const itemsModel = require('../model/itemsModel');
+const listModel = require('../model/listModel');
 const tools = require('../tool');
 
 //新增項目
 async function createToDoItems(req, res) {
   const { listId, itemsTitle } = req.body;
-  const token = req.header.Authorization;
+  const token = req.session.token;
   try {
     const access = tools.verifyToken(token);
     const checkPass = await listModel.checkUserId(listId);
@@ -34,7 +35,7 @@ async function createToDoItems(req, res) {
 // 刪除項目
 async function deleteToDoItems(req, res) {
   const itemsId = req.body.itemsId;
-  const token = req.header.Authorization;
+  const token = req.session.token;
   try {
     const access = tools.verifyToken(token);
     const listId = await itemsModel.itemsIdcheckUserId(itemsId);
@@ -69,7 +70,7 @@ async function deleteToDoItems(req, res) {
 // 更新項目內容
 async function updateToDoItems(req, res) {
   const { itemsTitle, itemsId } = req.body;
-  const token = req.header.Authorization;
+  const token = req.session.token;
   try {
     const access = tools.verifyToken(token);
     const listId = await itemsModel.itemsIdcheckUserId(itemsId);
@@ -104,7 +105,7 @@ async function updateToDoItems(req, res) {
 // 異動項目進度
 async function updatedItemsSchedule(req, res) {
   const { itemsId } = req.body;
-  const token = req.header.Authorization;
+  const token = req.session.token;
   try {
     const access = tools.verifyToken(token);
     const listId = await itemsModel.itemsIdcheckUserId(itemsId);
@@ -135,7 +136,7 @@ async function updatedItemsSchedule(req, res) {
 //項目排序異動
 async function changeItemSort(req, res) {
   const { itemsId, sortOrder } = req.body;
-  const token = req.header.Authorization;
+  const token = req.session.token;
   try {
     const access = tools.verifyToken(token);
     const listId = await itemsModel.itemsIdcheckUserId(itemsId);
@@ -157,15 +158,13 @@ async function changeItemSort(req, res) {
       itemsId,
       sortOrder
     );
-    console.log(changeItemsResult);
     if (!changeItemsResult) {
       return res.json({ sortOrderUpdate: false, message: '更新項目排序失敗' });
     } else {
-      await itemsModel.updatedOrder(listId);
       return res.json({ sortOrderUpdate: true, message: '更新項目排序成功' });
     }
   } catch (error) {
-    nsole.error('異動待辦項目失敗:', error);
+    console.error('異動待辦項目失敗:', error);
     // 返回伺服器錯誤
     return res
       .status(500)

@@ -4,7 +4,7 @@ const tools = require('../tool');
 //增新清單
 async function createToDoList(req, res) {
   const listTitle = req.body.title;
-  const token = req.header.Authorization;
+  const token = req.session.token;
   try {
     const access = tools.verifyToken(token);
     if (access === null) {
@@ -25,7 +25,7 @@ async function createToDoList(req, res) {
 //更新清單
 async function updatedToDoList(req, res) {
   const { listId, listTitle } = req.body;
-  const token = req.header.Authorization;
+  const token = req.session.token;
   try {
     const access = tools.verifyToken(token);
     const checkPass = await listModel.checkUserId(listId);
@@ -59,18 +59,18 @@ async function updatedToDoList(req, res) {
 // 刪除清單(含批次)
 async function deleteToDoList(req, res) {
   const listId = req.body.listId;
-  const token = req.header.Authorization;
+  const token = req.session.token;
+  const areAllNumbers = listId.every((item) => typeof item === 'number');
+  if (!areAllNumbers) {
+    return res
+      .status(200)
+      .json({ removeList: false, message: '輸入非正整數型別' });
+  }
   try {
     const access = tools.verifyToken(token);
     const checkPass = await listModel.checkUserId(listId[0]);
-    const areAllNumbers = listId.every((item) => typeof item === 'number');
     if (access === null) {
       return res.json({ loginStatus: false });
-    }
-    if (!areAllNumbers) {
-      return res
-        .status(200)
-        .json({ removeList: false, message: '輸入非正整數型別' });
     }
     if (checkPass != access.userId || !checkPass) {
       return res.status(200).json({ removeList: false, message: '無此清單' });

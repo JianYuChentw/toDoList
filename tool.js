@@ -1,4 +1,4 @@
-const { connection } = require('./dataBase/data');
+const { connection } = require('./database/data');
 const jwt = require('jsonwebtoken');
 //! token -----------------------------
 
@@ -18,9 +18,23 @@ function verifyToken(token) {
     return null;
   }
 }
-//123
+
+//時光機 把時間調整正常顯示２４Ｈ
+function formatDateTime(inputDateTime) {
+  const inputDate = new Date(inputDateTime);
+
+  const year = inputDate.getFullYear();
+  const month = String(inputDate.getMonth() + 1).padStart(2, '0');
+  const day = String(inputDate.getDate()).padStart(2, '0');
+  const hours = String(inputDate.getHours()).padStart(2, '0');
+  const minutes = String(inputDate.getMinutes()).padStart(2, '0');
+  const seconds = String(inputDate.getSeconds()).padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
 
 module.exports = {
   makeToken,
   verifyToken,
+  formatDateTime,
 };

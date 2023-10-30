@@ -5,8 +5,9 @@ const tagModel = require('../model/tagModel');
 
 // 登入頁
 async function toDolistFrontPage(req, res) {
-  const token = req.header.Authorization;
+  const token = req.session.token;
   const access = tools.verifyToken(token);
+  console.log(access);
   if (access !== null) {
     return res.json({ loginStatus: true });
   }
@@ -15,7 +16,7 @@ async function toDolistFrontPage(req, res) {
 
 // 個人頁
 async function MyToDoListPage(req, res) {
-  const token = req.header.Authorization;
+  const token = req.session.token;
   const access = tools.verifyToken(token);
   if (access === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
@@ -36,10 +37,9 @@ async function MyToDoListPage(req, res) {
 //讀取項目(指定清單)
 async function readToDoItems(req, res) {
   const { listId } = req.body;
-  const token = req.header.Authorization;
+  const token = req.session.token;
   const access = tools.verifyToken(token);
   const checkPass = await listModel.checkUserId(listId);
-  console.log(checkPass);
   if (access === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
   }
@@ -59,7 +59,10 @@ async function readToDoItems(req, res) {
         message: '讀取項目失敗或清單內無內容',
       });
     } else {
-      return res.json({ loginStatus: true, toDoitems: readItemsResult });
+      return res.json({
+        loginStatus: true,
+        toDoitems: readItemsResult,
+      });
     }
   } catch (error) {
     console.error('讀取待辦項目失敗:', error);
@@ -70,7 +73,7 @@ async function readToDoItems(req, res) {
 
 // 切換頁
 async function switchPage(req, res) {
-  const token = req.header.Authorization;
+  const token = req.session.token;
   const access = tools.verifyToken(token);
   const goalPage = req.body.goalPage;
   if (access === null) {
@@ -100,7 +103,7 @@ async function switchPage(req, res) {
 
 //讀取(依據List)
 async function searchList(req, res) {
-  const token = req.header.Authorization;
+  const token = req.session.token;
   const access = tools.verifyToken(token);
   if (access === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });

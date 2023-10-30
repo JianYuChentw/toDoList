@@ -1,4 +1,4 @@
-const { connection } = require('../dataBase/data');
+const { connection } = require('../database/data');
 const tools = require('../tool');
 
 //新增tag
@@ -6,7 +6,7 @@ async function createTag(listId, tagContent) {
   try {
     const userId = await tools.checkUserId(listId);
     const insertQuery =
-      'INSERT INTO listTag (userId, listId,tagContent) VALUES (?, ?, ?)';
+      'INSERT INTO list_tag (user_id, list_id,tag_content) VALUES (?, ?, ?)';
     const [result] = await connection.execute(insertQuery, [
       userId,
       listId,
@@ -22,7 +22,7 @@ async function createTag(listId, tagContent) {
 //tag複查
 async function tagCheckRepeat(listId, tagContent) {
   const selecttagContent =
-    'SELECT  *  FROM listTag WHERE  `listId` = ? and tagContent = ?';
+    'SELECT  *  FROM list_tag WHERE  `list_id` = ? and tag_content = ?';
   const [selectResult] = await connection.query(selecttagContent, [
     listId,
     tagContent,
