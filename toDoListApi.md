@@ -1,36 +1,7 @@
 # **My To Do List**
  >My To Do List API說明
-# **登入頁**
 
->訪問登入頁
-
-- **URL**
-  /LoginMyToDoListPage
-
-- **Method:**
-
-  `GET`
-
-- **URL Params**
-
-  `none`
-
--  **Required:**
-
-   `none`
-
-- **Success Response:**
-    >loginStatus，true為已登入,false為無登入
-  - **Code:** 200 <br />
-    **Content:**
-    `HTML 內容（登入頁面）`
-    ```json
-    {
-     "loginStatus":false, //Boolean 
-    }
-    ```
-
-# **個人首頁**
+# **所有清單頁(含分頁索引)**
 
 >訪問登入頁
 
@@ -47,7 +18,14 @@
 
 -  **Required:**
 
-   `none`
+  - **Required:**
+      **Body:**
+
+    ```json
+      {
+        "goalPage": "1", //Numbered
+      }
+    ```
 
 - **Success Response:**
   - **Code:** 200 
@@ -108,7 +86,7 @@
     ```
 
 
-# **單一清單頁**
+# **清單項目頁**
 
 >指定清單瀏覽，會展現內含項目
 
@@ -314,86 +292,6 @@
       }
     ```
 
-## **換頁**
->切換頁面
-
-- **URL**
-/MyToDoListSwitchPage
-
-- **Method:**
-
-  `PUT`
-
-- **URL Params**
-
-  `none`
-
--  **Required:**
-   **Body:**
-
-    ```json
-      {
-        "goalPage":1 //Number  
-      }
-    ```
-- **Success Response:**
-
-  - **Code:** 200 <br />
-    **Content:**
-
-    `(返回下一頁資料)`
-    ```json
-    {
-        "loginStatus": true,
-        "toDoList":[{
-            "listTitle":"待辦清單1", //String
-            "listCreatTime":"2023-10-16", //DateTime
-            "listLastUpDateTime":"2023-10-16", //DateTime
-            "itemsFinsh":5, //Int
-            "itemsUndo":5, //Int
-            "itemsTotal":10, //Int
-            "toDoitems":[{
-                "itemsTitle":"待辦項目1"},{ //String
-                "itemsTitle":"待辦項目2"} //String
-                ],  //Array
-            },{
-            "listtitle":"待辦清單2", //String
-            "listCreatTime":"2023-10-16", //DateTime
-            "listLastUpDateTime":"2023-10-16", //DateTime
-            "itemsFinsh":5, //Int
-            "itemsUndo":5, //Int
-            "itemsTotal":10, //Int
-            "toDoitems":[{
-                "itemsTitle":"待辦項目1"},{ //String
-                "itemsTitle":"待辦項目2"} //String
-                ], //Array
-            },
-        ],  //Array
-        "nowPage":1, //Int    
-        "totlePage":3, //Int    
-    }
-    ```
-
-- **Error Response:**
->目標頁無資料則，toDoList": false
-  - **Code:** 401 <br />
-    **Content:** 
-    ```json
-    {
-      "gettoDoList":false, //Boolean
-      "message":"伺服器錯誤" //String
-    }
-    or
-    {
-      "loginStatus": false, //Boolean
-      "message":"非登入狀態" //Stringing
-    }
-    or
-    {
-    "gettoDoList": false, //Boolean
-    "message": "無此頁面" //Stringing
-    }
-    ```
 
 # **清單功能**
 ## **新增待辦清單**

@@ -7,6 +7,7 @@ const user = require('../controller/userCtrl');
 const toDoTag = require('../controller/tagCtrl');
 const tools = require('../tool');
 
+//中介層驗證身份
 function canUserFunctionMiddleware(req, res, next) {
   const token = req.session.token;
   const user = tools.verifyToken(token);
@@ -16,25 +17,14 @@ function canUserFunctionMiddleware(req, res, next) {
   next();
 }
 
-/ 頁面 /;
-//登入頁 pass
-router.get('/LoginMyToDoListPage', toDoListPage.toDolistFrontPage);
+//個人to-do list(清單頁-指定前往)
+router.get('/MyToDoList', canUserFunctionMiddleware, toDoList.readToDoList);
 
-//註冊頁
-router.get('/registerMyToDoListPage');
-
-//個人to-do list
-router.get(
-  '/MyToDoList',
-  canUserFunctionMiddleware,
-  toDoListPage.MyToDoListPage
-);
-
-//個人to-do items(清單頁內)
+//個人to-do items(項目頁)
 router.get(
   '/MyToDoListShow',
   canUserFunctionMiddleware,
-  toDoListPage.readToDoItems
+  toDoitems.readToDoItems
 );
 
 / 頁面功能 /;
@@ -46,13 +36,6 @@ router.get('/LogOutMyToDoList', canUserFunctionMiddleware, user.logOut);
 
 //註冊
 router.post('/registerMyToDoList', user.register);
-
-//換頁
-router.put(
-  '/MyToDoListSwitchPage',
-  canUserFunctionMiddleware,
-  toDoListPage.switchPage
-);
 
 / 清單功能 /;
 //新增清單

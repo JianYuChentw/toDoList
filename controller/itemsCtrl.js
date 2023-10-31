@@ -20,11 +20,8 @@ async function createToDoItems(req, res) {
     if (!isParty) {
       return res.status(200).json({ createItems: false, message: '無此清單' });
     }
-    const createItemsResult = await itemsModel.createItemsAndListSchedule(
-      listId,
-      itemsTitle
-    );
-    if (!createItemsResult) {
+    const canCreateItems = await itemsModel.createItems(listId, itemsTitle);
+    if (!canCreateItems) {
       return res.json({ createItems: false, message: '新增項目失敗' });
     } else {
       return res.json({ createItems: true, message: '新增項目成功' });
@@ -33,6 +30,41 @@ async function createToDoItems(req, res) {
     console.error('創建待辦項目失敗:', error);
     // 返回伺服器錯誤
     return res.status(500).json({ createItems: false, message: '伺服器錯誤' });
+  }
+}
+
+//讀取項目(指定清單)
+async function readToDoItems(req, res) {
+  const { listId } = req.body;
+
+  if (isNaN(listId)) {
+    return res
+      .status(200)
+      .json({ readedItems: false, message: '輸入非正整數型別' });
+  }
+  try {
+    const userId = tools.verifyToken(req.session.token).userId;
+    const isParty = await listModel.checkIsParty(userId, listId);
+
+    if (!isParty) {
+      return res.status(200).json({ readedItems: false, message: '無此項目' });
+    }
+    const readItemsResult = await itemsModel.readItems(listId);
+    if (!readItemsResult) {
+      return res.json({
+        readedItems: false,
+        message: '讀取項目失敗或清單內無內容',
+      });
+    } else {
+      return res.json({
+        loginStatus: true,
+        toDoitems: readItemsResult,
+      });
+    }
+  } catch (error) {
+    console.error('讀取待辦項目失敗:', error);
+    // 返回伺服器錯誤的響應
+    return res.status(500).json({ readedItems: false, message: '伺服器錯誤' });
   }
 }
 
@@ -54,8 +86,8 @@ async function deleteToDoItems(req, res) {
       return res.status(200).json({ removeItems: false, message: '無此項目' });
     }
 
-    const deleteResult = await itemsModel.deleteItems(itemsId);
-    if (!deleteResult) {
+    const checkHasDeleteItems = await itemsModel.deleteItems(itemsId);
+    if (!checkHasDeleteItems) {
       return res
         .status(200)
         .json({ removeItems: false, message: '刪除項目失敗' });
@@ -89,11 +121,11 @@ async function updateToDoItems(req, res) {
     if (!isParty) {
       return res.status(200).json({ updatedItems: false, message: '無此項目' });
     }
-    const updatedItemsResult = await itemsModel.updatedItems(
+    const canUpdatedItemsResult = await itemsModel.updatedItems(
       itemsId,
       itemsTitle
     );
-    if (!updatedItemsResult) {
+    if (!canUpdatedItemsResult) {
       return res.json({ updatedItems: false, message: '更新項目失敗' });
     } else {
       return res.json({ updatedItems: true, message: '更新項目成功' });
@@ -124,8 +156,8 @@ async function updatedItemsSchedule(req, res) {
         .status(200)
         .json({ updateSchedule: false, message: '無此項目' });
     }
-    const changeItem = await itemsModel.ItemsSchedule(itemsId);
-    if (!changeItem) {
+    const canChangeScheduleItem = await itemsModel.ItemsSchedule(itemsId);
+    if (!canChangeScheduleItem) {
       return res.json({ updateSchedule: false, message: '更新項目進度失敗' });
     } else {
       return res.json({ updateSchedule: true, message: '更新項目進度成功' });
@@ -158,11 +190,11 @@ async function changeItemSort(req, res) {
         .status(200)
         .json({ sortOrderUpdate: false, message: '無此項目' });
     }
-    const changeItemsResult = await itemsModel.updateSortOrder(
+    const canChangeItemsSortOrder = await itemsModel.updateSortOrder(
       itemsId,
       sortOrder
     );
-    if (!changeItemsResult) {
+    if (!canChangeItemsSortOrder) {
       return res.json({ sortOrderUpdate: false, message: '更新項目排序失敗' });
     } else {
       return res.json({ sortOrderUpdate: true, message: '更新項目排序成功' });
@@ -182,4 +214,5 @@ module.exports = {
   deleteToDoItems,
   changeItemSort,
   updatedItemsSchedule,
+  readToDoItems,
 };

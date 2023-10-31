@@ -49,3 +49,83 @@ create table `list_tag`(
 FOREIGN KEY (`user_id`) REFERENCES `user_data`(`id`), -- 外鍵userId
 FOREIGN KEY (`list_id`) REFERENCES `list_data`(`id`) ON DELETE CASCADE -- 外鍵listId子關聯性
 );
+
+-- 觸發器 增加項目時更新清單項目總數list_total
+DELIMITER //
+CREATE TRIGGER update_list_total AFTER INSERT ON items_data FOR EACH ROW
+BEGIN
+    -- 計算新的 list_total 
+    SET @new_list_total = (SELECT COUNT(*) FROM items_data WHERE list_id = NEW.list_id);
+
+    -- 更新 list_total 
+    UPDATE list_data SET list_total = @new_list_total WHERE id = NEW.list_id;
+END;
+//
+DELIMITER ;
+
+-- 觸發器 更新為未完成項目時更新清單項目總數list_total
+DELIMITER //
+CREATE TRIGGER delete_list_total AFTER DELETE ON items_data FOR EACH ROW
+BEGIN
+    -- 計算新的 list_total 
+    SET @new_list_total = (SELECT COUNT(*) FROM items_data WHERE list_id = OLD.list_id);
+
+    -- 更新 list_total 
+    UPDATE list_data SET list_total = @new_list_total WHERE id = OLD.list_id;
+END;
+//
+DELIMITER ;
+
+
+-- 觸發器 當項目改為完成時更新list_finsh
+DELIMITER //
+CREATE TRIGGER tick_list_finsh AFTER UPDATE ON items_data FOR EACH ROW
+BEGIN
+    -- 檢查新插入的行的 items_schedule 
+    IF NEW.items_schedule = 1 THEN
+        -- 增加 list_data 表中 list_finsh ，且id = list_id 
+        UPDATE list_data
+        SET list_finsh = list_finsh + 1
+        WHERE id = NEW.list_id;
+    END IF;
+END;
+//
+DELIMITER ;
+
+-- 觸發器 當完成項目被刪除時更新list_finsh
+DELIMITER //
+CREATE TRIGGER delete_list_finsh AFTER DELETE ON items_data FOR EACH ROW
+BEGIN
+    -- 檢查刪除的 items_schedule
+    IF OLD.items_schedule = 1 THEN
+        -- 减少 list_data 表中 list_finsh 值，且id = list_id
+        UPDATE list_data
+        SET list_finsh = list_finsh - 1
+        WHERE id = OLD.list_id;
+    END IF;
+END;
+//
+DELIMITER ;
+
+-- 觸發器 當完成項目改為完成時更新list_finsh
+DELIMITER //
+CREATE TRIGGER cross_list_finsh AFTER UPDATE ON items_data FOR EACH ROW
+BEGIN
+    -- 檢查新插入的行的 items_schedule 
+    IF OLD.items_schedule = 1 THEN
+        -- 增加 list_data 表中 list_finsh 值，且id = list_id
+        UPDATE list_data
+        SET list_finsh = list_finsh -1
+        WHERE id = OLD.list_id;
+    END IF;
+END;
+//
+DELIMITER //;
+
+
+
+
+
+
+
+

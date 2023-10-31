@@ -30,18 +30,16 @@ async function login(req, res) {
 async function register(req, res) {
   const { account, password } = req.body;
   try {
-    const userIsRepeat = await userModel.userIsRepeat(account);
-    if (!userIsRepeat.success) {
+    const isUserRepeat = await userModel.userIsRepeat(account);
+    if (!isUserRepeat) {
       return res.json({ registerResult: false, message: '帳號已存在' });
     }
     await userModel.createUser(account, password);
     return res.json({ registerResult: true, message: '註冊成功' });
   } catch (error) {
-    return res.json({
-      registerResult: false,
-      message: '發生錯誤',
-      error: error.message,
-    });
+    return res
+      .status(500)
+      .json({ registerResult: false, message: '伺服器錯誤' });
   }
 }
 

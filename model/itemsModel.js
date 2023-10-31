@@ -123,118 +123,28 @@ async function updatedItems(itemsId, itemsTitle) {
       itemsTitle,
       itemsId,
     ]);
-    if (result.affectedRows > 0) {
-      return true;
-    } else {
-      return false;
-    }
+    return result.affectedRows > 0;
   } catch (error) {
     console.error('更新項目data錯誤:', error);
     throw new Error('更新項目data錯誤');
   }
 }
 
-//更新項目完成數量
-async function updatedItemsFinish(listId, n) {
-  try {
-    const selectQuery = 'SELECT list_finsh FROM list_data WHERE id = ?';
-    const [selectResult] = await connection.execute(selectQuery, [listId]);
-    if (selectResult.length === 1) {
-      const currentFinsh = selectResult[0].list_finsh;
-      const updatedFinsh = currentFinsh + n;
-
-      const updateQuery = 'UPDATE list_data SET list_finsh = ? WHERE id = ?';
-      const [updateResult] = await connection.execute(updateQuery, [
-        updatedFinsh,
-        listId,
-      ]);
-
-      if (updateResult.affectedRows > 0) {
-        // 表示更新成功
-        return updateResult.affectedRows === 1;
-      } else {
-        // 沒有listId符合對象，更新數量層完成
-        return false;
-      }
-    } else {
-      // 沒有listId符合對象
-      return false;
-    }
-  } catch (error) {
-    console.error('更新listTotal時，發生錯誤:', error);
-    throw new Error('更新listTotal時，發生錯誤');
-  }
-}
-
-//更新項目總數量
-async function updatedItemsTotal(listId, n) {
-  try {
-    const selectQuery = 'SELECT list_total FROM list_data WHERE id = ?';
-    const [selectResult] = await connection.execute(selectQuery, [listId]);
-    if (selectResult.length === 1) {
-      const currentTotal = selectResult[0].list_total;
-      const updatedTotal = currentTotal + n;
-
-      const updateQuery = 'UPDATE list_data SET list_total = ? WHERE id = ?';
-      const [updateResult] = await connection.execute(updateQuery, [
-        updatedTotal,
-        listId,
-      ]);
-
-      if (updateResult.affectedRows > 0) {
-        // 表示更新成功
-        return updateResult.affectedRows === 1;
-      } else {
-        // 沒有listId符合對象，更新數量層完成
-        return false;
-      }
-    } else {
-      // 沒有listId符合對象
-      return false;
-    }
-  } catch (error) {
-    console.error('更新listTotal時，發生錯誤:', error);
-    throw new Error('更新listTotal時，發生錯誤');
-  }
-}
-
 //項目進度異動(Completed <-> Unfinished)
 async function ItemsSchedule(itemId) {
   try {
-    const itemsSchedule = 'SELECT items_schedule FROM items_data WHERE id = ?';
-    const [itemsScheduleResult] = await connection.execute(itemsSchedule, [
+    const updateScheduleQuery = `UPDATE items_data
+      SET items_schedule = CASE
+          WHEN items_schedule = 0 THEN 1
+          WHEN items_schedule = 1 THEN 0
+          ELSE items_schedule
+      END
+      WHERE id = ?`;
+
+    const [canUpdateSchedule] = await connection.execute(updateScheduleQuery, [
       itemId,
     ]);
-    const selectListId = 'SELECT list_id FROM items_data WHERE id = ?';
-    const [selectResult] = await connection.execute(selectListId, [itemId]);
-    let newSchedule;
-    const nowSchedule = itemsScheduleResult[0].items_schedule;
-    if (nowSchedule === 0) {
-      newSchedule = 1;
-      const updateQuery =
-        'UPDATE list_data SET list_finsh = list_finsh + 1 WHERE id = ?';
-      const [updateResult] = await connection.execute(updateQuery, [
-        selectResult[0].list_id,
-      ]);
-    }
-    if (nowSchedule === 1) {
-      newSchedule = 0;
-      const updateQuery =
-        'UPDATE list_data SET list_finsh = list_finsh - 1 WHERE id = ?';
-      const [updateResult] = await connection.execute(updateQuery, [
-        selectResult[0].list_id,
-      ]);
-    }
-    const updateQuery = 'UPDATE items_data SET items_schedule = ? WHERE id = ?';
-    const [result] = await connection.execute(updateQuery, [
-      newSchedule,
-      itemId,
-    ]);
-    if (result.affectedRows > 0) {
-      return true;
-    } else {
-      return false;
-    }
+    return canUpdateSchedule.affectedRows > 0;
   } catch (error) {
     console.error('項目進度異動data失敗:', error);
     throw new Error('項目進度異動data失敗發生錯誤');
@@ -244,58 +154,14 @@ async function ItemsSchedule(itemId) {
 // 刪除
 async function deleteItems(itemId) {
   try {
-    const selectListId = 'SELECT list_id FROM items_data WHERE id = ?';
-    const [selectResult] = await connection.execute(selectListId, [itemId]);
-    const list_id = selectResult[0].list_id;
-    // 判斷項目是否符合完成
-    const selectItemsSchedule =
-      'SELECT items_schedule FROM items_data WHERE id = ?';
-    const [isItemsFinish] = await connection.execute(selectItemsSchedule, [
-      itemId,
-    ]);
     // 刪除項目
     const deleteQuery = 'DELETE FROM items_data WHERE id = ?';
     const [result] = await connection.execute(deleteQuery, [itemId]);
 
-    if (result.affectedRows > 0) {
-      updatedItemsTotal(list_id, -1);
-      //當前項目若為完成，更動完成項目計數器
-      if (isItemsFinish.length > 0) {
-        updatedItemsFinish(list_id, -1);
-      }
-      return true;
-    } else {
-      return false;
-    }
+    return result.affectedRows > 0;
   } catch (error) {
     console.error('刪除項目data發生錯誤:', error);
     throw new Error('刪除項目data發生錯誤');
-  }
-}
-
-//新增項目並異動清單的總項目數
-async function createItemsAndListSchedule(listId, itemsTitle) {
-  const conn = await connection.getConnection();
-  try {
-    await conn.beginTransaction();
-    const createResult = await createItems(listId, itemsTitle);
-    const createItemsQuantityResult = await updatedItemsTotal(listId, 1);
-    if (!createResult || !createItemsQuantityResult) {
-      await conn.rollback();
-      conn.release();
-      console.log('message: 新增項目失敗');
-      return false;
-    } else {
-      await conn.commit();
-      conn.release();
-      console.log('message: 新增項目成功');
-      return true;
-    }
-  } catch (error) {
-    await conn.rollback();
-    conn.release();
-    console.error('創建待辦項目失敗:', error);
-    throw new Error('創建待辦項目失敗');
   }
 }
 
@@ -374,11 +240,8 @@ module.exports = {
   readItems,
   updatedItems,
   deleteItems,
-  updatedItemsTotal,
-  createItemsAndListSchedule,
   updateSortOrder,
   ItemsSchedule,
   updatedOrder,
   getListIdByItemsId,
-  updatedItemsFinish,
 };

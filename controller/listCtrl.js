@@ -39,8 +39,8 @@ async function updatedToDoList(req, res) {
     if (!isParty) {
       return res.status(200).json({ updatedList: false, message: '無此清單' });
     }
-    const updateResult = await listModel.updatedList(listId, listTitle);
-    if (!updateResult) {
+    const canUpdateResult = await listModel.updatedList(listId, listTitle);
+    if (!canUpdateResult) {
       return res
         .status(200)
         .json({ updatedList: false, message: '更新清單失敗' });
@@ -52,6 +52,31 @@ async function updatedToDoList(req, res) {
   } catch (error) {
     console.error('更新清單失敗:', error);
     return res.status(500).json({ updatedList: false, message: '伺服器錯誤' });
+  }
+}
+
+// 讀取清單(可指定)
+async function readToDoList(req, res) {
+  const goalPage = req.body.goalPage;
+  if (isNaN(goalPage)) {
+    return res
+      .status(200)
+      .json({ gettoDoList: false, message: '輸入非正整數型別' });
+  }
+  //要加入讀取資料
+  try {
+    const userId = tools.verifyToken(req.session.token).userId;
+    const listData = await listModel.readList(userId, goalPage);
+    if (!listData) {
+      return res.json({ gettoDoList: false, message: '重新確認目標頁' });
+    }
+    const list = await listData.rows;
+    const nowPage = await listData.nowPage;
+    const totlePage = await listData.totlePage;
+    return res.json({ loginStatus: true, toDoList: list, nowPage, totlePage });
+  } catch (error) {
+    console.error('取得時發生錯誤:', error);
+    return res.status(500).json({ gettoDoList: false, message: '伺服器錯誤' });
   }
 }
 
@@ -72,8 +97,8 @@ async function deleteToDoList(req, res) {
     if (!isParty) {
       return res.status(200).json({ removeList: false, message: '無此清單' });
     }
-    const deleteResult = await listModel.deleteLists(listId);
-    if (!deleteResult) {
+    const canDeleteList = await listModel.deleteLists(listId);
+    if (!canDeleteList) {
       return res
         .status(200)
         .json({ removeList: false, message: '刪除清單失敗' });
@@ -89,6 +114,7 @@ async function deleteToDoList(req, res) {
 }
 
 module.exports = {
+  readToDoList,
   createToDoList,
   updatedToDoList,
   deleteToDoList,

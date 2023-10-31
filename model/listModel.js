@@ -6,8 +6,11 @@ async function createList(userId, listTitle) {
   try {
     const insertQuery =
       'INSERT INTO list_data (user_id, list_title) VALUES (?, ?)';
-    const [result] = await connection.execute(insertQuery, [userId, listTitle]);
-    return true;
+    const [inserResult] = await connection.execute(insertQuery, [
+      userId,
+      listTitle,
+    ]);
+    return inserResult.affectedRows > 0;
   } catch (error) {
     console.error('創建清單data時發生錯誤:', error);
     throw new Error('創建清單data時發生錯誤');
@@ -115,7 +118,7 @@ async function readGiveList(listIds, nowPage) {
 
       return { rows, nowPage, totlePage };
     } else {
-      return [];
+      return false;
     }
   } catch (error) {
     console.error('查詢清單data時發生錯誤:', error);
@@ -128,12 +131,7 @@ async function updatedList(listId, listTitle) {
   try {
     const updateQuery = 'UPDATE list_data SET list_title = ? WHERE id = ? ';
     const [result] = await connection.execute(updateQuery, [listTitle, listId]);
-    console.log(result);
-    if (result.affectedRows > 0) {
-      return true;
-    } else {
-      return false;
-    }
+    return result.affectedRows > 0;
   } catch (error) {
     console.error('清單data更新失敗:', error);
     throw new Error('清單data更新失敗');

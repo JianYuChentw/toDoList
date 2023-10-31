@@ -22,11 +22,7 @@ async function userIsRepeat(account) {
   try {
     const repeatResult = 'SELECT * FROM user_data WHERE account = ?';
     const [results] = await connection.execute(repeatResult, [account]);
-    if (results.length > 0) {
-      return { success: false, message: '帳號已重複' };
-    } else {
-      return { success: true, message: '帳號尚無使用' };
-    }
+    return results.length > 0;
   } catch (error) {
     console.error('檢查data重複使用者時發生錯誤:', error);
     throw new Error('檢查data重複使用者時發生錯誤');
@@ -40,9 +36,9 @@ async function checkIsMember(account, password) {
     const [results] = await connection.execute(query, [account, password]);
 
     if (results.length > 0) {
-      return { success: true, userId: results[0].id, message: '登入成功' };
+      return { success: true, userId: results[0].id };
     } else {
-      return { success: false, id: null, message: '帳號或密碼錯誤' };
+      return { success: false, id: null };
     }
   } catch (error) {
     console.error('檢查帳號或密碼錯誤:', error);
