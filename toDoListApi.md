@@ -44,8 +44,10 @@
           "itemsUndo":5, //Int
           "itemsTotal":10, //Int
           "toDoitems":[{
-              "itemsTitle":"待辦項目1"},{ //String
-              "itemsTitle":"待辦項目2"} //String
+              "itemsTitle":"待辦項目1"  ,//String
+              "itemsSortOrder": 1},{ //Number
+              "itemsTitle":"待辦項目2",//String
+              "itemsSortOrder": 2} //Number
               ],  //Array
           },{
           "id":2, // Int

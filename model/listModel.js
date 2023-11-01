@@ -33,34 +33,39 @@ async function readList(id, nowPage) {
 
     //導入起始行數(ex:OFFSET 0為不忽略行數, OFFSET 5 忽略前5行)
     const selectQuery = `
-    SELECT 
-    list_data.id,
-    list_data.user_id AS userId,
-    list_data.list_title AS listTitle,
-    list_data.list_finsh AS listFinsh,
-    (list_data.list_total - list_data.list_finsh) AS itemsUndo,
-    list_data.list_total AS listTotal,
-    DATE_FORMAT(list_data.list_create_time, '%Y-%m-%d %H:%i:%s') AS listCreateTime,
-    DATE_FORMAT(list_data.list_update_time, '%Y-%m-%d %H:%i:%s') AS listUpdateTime,
-    (
-        SELECT JSON_ARRAYAGG(JSON_OBJECT('itemsTitle', items_data.items_title))
-        FROM items_data
-        WHERE list_data.id = items_data.list_id
-        ORDER BY items_data.items_sort_order
-    ) AS toDoitems
+  SELECT 
+  list_data.id,
+  list_data.user_id AS userId,
+  list_data.list_title AS listTitle,
+  list_data.list_finsh AS listFinsh,
+  (list_data.list_total - list_data.list_finsh) AS itemsUndo,
+  list_data.list_total AS listTotal,
+  DATE_FORMAT(list_data.list_create_time, '%Y-%m-%d %H:%i:%s') AS listCreateTime,
+  DATE_FORMAT(list_data.list_update_time, '%Y-%m-%d %H:%i:%s') AS listUpdateTime,
+  (
+      SELECT JSON_ARRAYAGG(JSON_OBJECT('itemsTitle', items_data.items_title, 'itemsSortOrder', items_data.items_sort_order))
+      FROM items_data
+      WHERE list_data.id = items_data.list_id
+      ORDER BY items_data.items_sort_order
+  ) AS toDoitems
     FROM list_data
     WHERE list_data.user_id = ?
     LIMIT 5 OFFSET ${startRow};
-
-    `;
+  `;
 
     const [rows] = await connection.execute(selectQuery, [id]);
 
     if (rows.length > 0) {
+      for (const row of rows) {
+        if (row.toDoitems) {
+          row.toDoitems.sort((a, b) => {
+            return a.itemsSortOrder - b.itemsSortOrder;
+          });
+        }
+      }
       return { rows, nowPage, totlePage };
-    } else {
-      return [];
     }
+    return [];
   } catch (error) {
     console.error('查詢目標頁清單data時發生錯誤:', error);
     throw new Error('查詢目標頁清單data時發生錯誤');
@@ -68,11 +73,11 @@ async function readList(id, nowPage) {
 }
 
 // 讀取（可指定ListId)
-async function readGiveList(listIds, nowPage) {
+async function readGiveList(listIds, goalPage) {
   try {
     const listIdsString = listIds.join(',');
     // 計算起始行數
-    const startRow = (nowPage - 1) * 5;
+    const startRow = (goalPage - 1) * 5;
 
     // 查詢總行數
     const countResult = [];
@@ -93,30 +98,26 @@ async function readGiveList(listIds, nowPage) {
 
     const selectQuery = `
     SELECT 
-    listData.id,
-    listData.userId,
-    listData.listTitle,
-    listData.listFinsh,
-    (listData.listTotal - listData.listFinsh) AS itemsUndo,
-    listData.listTotal,
-    DATE_FORMAT(listData.listCreateTime, '%Y-%m-%d %H:%i:%s') AS listCreateTime,
-    DATE_FORMAT(listData.listUpdateTime, '%Y-%m-%d %H:%i:%s') AS listUpdateTime,
-    JSON_ARRAYAGG(
-      JSON_OBJECT('itemsTitle', itemsData.itemsTitle)
-    ) AS toDoitems
-    FROM listData
-    LEFT JOIN itemsData ON listData.id = itemsData.listId
-    WHERE listData.id IN (${listIdsString})
-    GROUP BY listData.id, listData.userId, listData.listTitle, listData.listFinsh, listData.listTotal, listData.listCreateTime, listData.listUpdateTime
+    list_data.id,
+    list_data.user_id AS userId,
+    list_data.list_title AS listTitle,
+    list_data.list_finsh AS listFinsh,
+    (list_data.list_total - list_data.list_finsh) AS itemsUndo,
+    list_data.list_total AS listTotal,
+    DATE_FORMAT(list_data.list_create_time, '%Y-%m-%d %H:%i:%s') AS listCreateTime,
+    DATE_FORMAT(list_data.list_update_time, '%Y-%m-%d %H:%i:%s') AS listUpdateTime
+    FROM list_data
+    WHERE list_data.id IN (${listIdsString})
+    GROUP BY list_data.id, list_data.user_id, list_data.list_title, list_data.list_finsh, list_data.list_total, list_data.list_create_time, list_data.list_update_time
     LIMIT 5 OFFSET ${startRow};
     `;
 
     const [rows] = await connection.execute(selectQuery);
 
     if (rows.length > 0) {
-      console.log(rows, nowPage, totlePage);
+      console.log(rows, goalPage, totlePage);
 
-      return { rows, nowPage, totlePage };
+      return { rows, goalPage, totlePage };
     } else {
       return false;
     }

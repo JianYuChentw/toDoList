@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const toDoListPage = require('../controller/pageCtrl');
 const toDoList = require('../controller/listCtrl');
 const toDoitems = require('../controller/itemsCtrl');
 const user = require('../controller/userCtrl');
@@ -59,15 +58,6 @@ router.delete(
   toDoList.deleteToDoList
 );
 
-//新增清單tag
-router.post(
-  '/createMyToDoTag',
-  canUserFunctionMiddleware,
-  toDoTag.createToDoTag
-);
-
-//清單tag篩選
-
 / 項目功能 /;
 //新增項目
 router.post(
@@ -104,4 +94,27 @@ router.put(
   toDoitems.changeItemSort
 );
 
+/ 標籤功能 /;
+//自己的所有標籤
+router.get('/getMyToDoTag', canUserFunctionMiddleware, toDoTag.getMyTiDoTag);
+
+//新增tag
+router.post(
+  '/createMyToDoTag',
+  canUserFunctionMiddleware,
+  toDoTag.creatToDoTag
+);
+
+//刪除tag
+router.delete(
+  '/deleteMyToDoTag',
+  canUserFunctionMiddleware,
+  toDoTag.deleteToDoTag
+);
+//讀取指定標籤相關清單
+router.get(
+  '/readMyToDoTagList',
+  canUserFunctionMiddleware,
+  toDoTag.readToDoTag
+);
 module.exports = router;

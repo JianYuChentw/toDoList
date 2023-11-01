@@ -55,7 +55,7 @@ async function updatedToDoList(req, res) {
   }
 }
 
-// 讀取清單(可指定)
+// 讀取清單(可指定頁數)
 async function readToDoList(req, res) {
   const goalPage = req.body.goalPage;
   if (isNaN(goalPage)) {

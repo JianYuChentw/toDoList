@@ -46,7 +46,7 @@ create table `list_tag`(
 `user_id` int, -- 使用者ＩＤ(FK)
 `list_id` int, -- 清單ＩＤ(FK)
 `tag_content` varchar(50) NOT NULL, -- tag內容
-FOREIGN KEY (`user_id`) REFERENCES `user_data`(`id`), -- 外鍵userId
+FOREIGN KEY (`user_id`) REFERENCES `user_data`(`id`) ON DELETE CASCADE , -- 外鍵userId
 FOREIGN KEY (`list_id`) REFERENCES `list_data`(`id`) ON DELETE CASCADE -- 外鍵listId子關聯性
 );
 

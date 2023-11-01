@@ -31,7 +31,7 @@ async function register(req, res) {
   const { account, password } = req.body;
   try {
     const isUserRepeat = await userModel.userIsRepeat(account);
-    if (!isUserRepeat) {
+    if (isUserRepeat) {
       return res.json({ registerResult: false, message: '帳號已存在' });
     }
     await userModel.createUser(account, password);
