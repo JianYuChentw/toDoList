@@ -9,7 +9,7 @@ async function login(req, res) {
     if (!chekMemberResult.success) {
       console.log('帳號或密碼有誤！');
       return res.send({
-        loginStatus: false,
+        Status: false,
         message: '登入失敗,帳號或密碼有誤！',
       });
     }
@@ -19,7 +19,7 @@ async function login(req, res) {
     req.session.token = token;
 
     console.log('登入成功');
-    return res.json({ loginStatus: true, message: '登入成功' });
+    return res.json({ Status: true, message: '登入成功' });
   } catch (error) {
     console.error('失敗:', error);
     return res.status(500).send('未預期失敗');
@@ -32,14 +32,12 @@ async function register(req, res) {
   try {
     const isUserRepeat = await userModel.userIsRepeat(account);
     if (isUserRepeat) {
-      return res.json({ registerResult: false, message: '帳號已存在' });
+      return res.json({ Status: false, message: '帳號已存在' });
     }
     await userModel.createUser(account, password);
-    return res.json({ registerResult: true, message: '註冊成功' });
+    return res.json({ Status: true, message: '註冊成功' });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ registerResult: false, message: '伺服器錯誤' });
+    return res.status(500).json({ Status: false, message: '伺服器錯誤' });
   }
 }
 
