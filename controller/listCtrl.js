@@ -4,7 +4,7 @@ const tools = require('../tool');
 //增新清單
 async function createToDoList(req, res) {
   const listTitle = req.body.title;
-  if (listTitle === null) {
+  if (listTitle === null || listTitle.length === 0) {
     return res.json({ createList: true, message: '清單輸入不得為空' });
   }
   try {
@@ -25,13 +25,13 @@ async function createToDoList(req, res) {
 async function updatedToDoList(req, res) {
   const { listId, listTitle } = req.body;
 
-  if (isNaN(listId)) {
+  if (isNaN(listId) || typeof listId === 'string') {
     return res
       .status(200)
       .json({ updatedList: false, message: '輸入非正整數型別' });
   }
-  if (listTitle === null) {
-    return res.json({ updatedList: true, message: '更新清單輸入不得為空' });
+  if (listTitle === null || listTitle.length === 0) {
+    return res.json({ updatedList: false, message: '更新清單輸入不得為空' });
   }
   try {
     const userId = tools.verifyToken(req.session.token).userId;
@@ -58,10 +58,15 @@ async function updatedToDoList(req, res) {
 // 讀取清單(可指定頁數)
 async function readToDoList(req, res) {
   const goalPage = req.body.goalPage;
-  if (isNaN(goalPage)) {
+  if (isNaN(goalPage) || typeof goalPage === 'string') {
     return res
       .status(200)
       .json({ gettoDoList: false, message: '輸入非正整數型別' });
+  }
+  if (goalPage === 0) {
+    return res
+      .status(200)
+      .json({ gettoDoList: false, message: '非有效目標頁' });
   }
   //要加入讀取資料
   try {
@@ -85,7 +90,7 @@ async function deleteToDoList(req, res) {
   const listId = req.body.listId;
 
   const areAllNumbers = listId.every((item) => typeof item === 'number');
-  if (!areAllNumbers) {
+  if (!areAllNumbers || listId.length === 0) {
     return res
       .status(200)
       .json({ removeList: false, message: '輸入非正整數型別' });

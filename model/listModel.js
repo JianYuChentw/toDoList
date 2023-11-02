@@ -10,6 +10,7 @@ async function createList(userId, listTitle) {
       userId,
       listTitle,
     ]);
+    console.log(`\u001b[33m`, '執行listData新增', `\u001b[37m`);
     return inserResult.affectedRows > 0;
   } catch (error) {
     console.error('創建清單data時發生錯誤:', error);
@@ -63,6 +64,7 @@ async function readList(id, nowPage) {
           });
         }
       }
+      console.log(`\u001b[33m`, '取得list相關資料', `\u001b[37m`);
       return { rows, nowPage, totlePage };
     }
     return [];
@@ -115,7 +117,7 @@ async function readGiveList(listIds, goalPage) {
     const [rows] = await connection.execute(selectQuery);
 
     if (rows.length > 0) {
-      console.log(rows, goalPage, totlePage);
+      console.log(`\u001b[33m`, '執行取得指定listId相關內容', `\u001b[37m`);
 
       return { rows, goalPage, totlePage };
     } else {
@@ -132,6 +134,7 @@ async function updatedList(listId, listTitle) {
   try {
     const updateQuery = 'UPDATE list_data SET list_title = ? WHERE id = ? ';
     const [result] = await connection.execute(updateQuery, [listTitle, listId]);
+    console.log(`\u001b[33m`, `執行list${listId}內容更新`, `\u001b[37m`);
     return result.affectedRows > 0;
   } catch (error) {
     console.error('清單data更新失敗:', error);
@@ -148,6 +151,7 @@ async function deleteLists(listIds) {
     const listIdsStr = listIds.join(',');
     const deleteQuery = `DELETE FROM list_data WHERE id IN (${listIdsStr})`;
     const [result] = await connection.execute(deleteQuery);
+    console.log(`\u001b[33m`, `執行listData${listIds}刪除`, `\u001b[37m`);
     return result.affectedRows > 0;
   } catch (error) {
     console.error('清單data刪除失敗:', error);
@@ -163,7 +167,7 @@ async function checkIsParty(id, listId) {
 
     if (listDataRows && listDataRows.length > 0) {
       const userId = listDataRows[0].user_id;
-
+      console.log(`\u001b[34m`, `完成${id}與${listId}身份比對`, `\u001b[37m`);
       return id === userId;
     }
   } catch (error) {

@@ -16,16 +16,17 @@ async function getMyTiDoTag(req, res) {
     return res.status(500).json({ getMyTag: false, message: '伺服器錯誤' });
   }
 }
+
 //新增tag
 async function creatToDoTag(req, res) {
   const { listId, tagContent } = req.body;
-  if (isNaN(listId)) {
+  if (isNaN(listId) || typeof listId === 'string') {
     return res
       .status(200)
       .json({ createTag: false, message: '輸入非正整數型別' });
   }
 
-  if (tagContent === null) {
+  if (tagContent === null || tagContent.length === 0) {
     return res.json({ createTag: true, message: '標籤輸入不得為空' });
   }
 
@@ -60,7 +61,7 @@ async function creatToDoTag(req, res) {
 // 刪除tag
 async function deleteToDoTag(req, res) {
   const tagId = req.body.tagId;
-  if (isNaN(tagId)) {
+  if (isNaN(tagId) || typeof tagId === 'string') {
     return res
       .status(200)
       .json({ deleteTag: false, message: '輸入非正整數型別' });
@@ -85,7 +86,7 @@ async function deleteToDoTag(req, res) {
 // 讀取tag相關清單
 async function readToDoTag(req, res) {
   const { tagId, goalPage } = req.body;
-  if (isNaN(tagId)) {
+  if (isNaN(tagId) || typeof tagId === 'string') {
     return res
       .status(200)
       .json({ readTag: false, message: '輸入非正整數型別' });
@@ -98,13 +99,13 @@ async function readToDoTag(req, res) {
     }
 
     const listIds = await tagModel.getListByTag(tagId);
-    const getList = await listModel.readGiveList(listIds, goalPage);
-    console.log(getList);
+    const getList = await listModel.readGiveList(listIds.listIds, goalPage);
     if (!getList) {
       return res.status(200).json({ readTag: false, message: '輸入標籤有誤' });
     }
     return res.json({
       loginStatus: true,
+      tagContent: listIds.tagContent,
       toDoList: getList.rows,
       nowPage: getList.goalPage,
       totlePage: getList.totlePage,

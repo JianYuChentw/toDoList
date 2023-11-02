@@ -5,7 +5,7 @@ const tools = require('../tool');
 //新增項目
 async function createToDoItems(req, res) {
   const { listId, itemsTitle } = req.body;
-  if (itemsTitle === null) {
+  if (itemsTitle.length === 0 || itemsTitle === null) {
     return res.json({ createItems: true, message: '項目輸入不得為空' });
   }
   if (isNaN(listId)) {
@@ -37,7 +37,7 @@ async function createToDoItems(req, res) {
 async function readToDoItems(req, res) {
   const { listId } = req.body;
 
-  if (isNaN(listId)) {
+  if (isNaN(listId) || typeof listId === 'string') {
     return res
       .status(200)
       .json({ readedItems: false, message: '輸入非正整數型別' });
@@ -72,7 +72,7 @@ async function readToDoItems(req, res) {
 async function deleteToDoItems(req, res) {
   const itemsId = req.body.itemsId;
 
-  if (isNaN(itemsId)) {
+  if (isNaN(itemsId) || typeof itemsId === 'string') {
     return res
       .status(200)
       .json({ removeItems: false, message: '輸入非正整數型別' });
@@ -104,12 +104,12 @@ async function deleteToDoItems(req, res) {
 // 更新項目內容
 async function updateToDoItems(req, res) {
   const { itemsTitle, itemsId } = req.body;
-  if (isNaN(itemsId)) {
+  if (isNaN(itemsId) || typeof itemsId === 'string') {
     return res
       .status(200)
       .json({ updatedItems: false, message: '輸入itemsId非正整數型別' });
   }
-  if (itemsTitle === null) {
+  if (itemsTitle.length === 0 || itemsTitle === null) {
     return res.json({ updatedItems: true, message: '更新項目輸入不得為空' });
   }
 
@@ -141,7 +141,7 @@ async function updateToDoItems(req, res) {
 async function updatedItemsSchedule(req, res) {
   const { itemsId } = req.body;
 
-  if (isNaN(itemsId)) {
+  if (isNaN(itemsId) || typeof itemsId === 'string') {
     return res
       .status(200)
       .json({ updateSchedule: false, message: '輸入itemsId非正整數型別' });
@@ -174,7 +174,10 @@ async function updatedItemsSchedule(req, res) {
 //項目排序異動
 async function changeItemSort(req, res) {
   const { itemsId, sortOrder } = req.body;
-  if (isNaN(itemsId) || isNaN(sortOrder)) {
+  if (
+    isNaN(itemsId) ||
+    isNaN(sortOrder || sortOrder <= 0 || typeof itemsId === 'string')
+  ) {
     return res.status(200).json({
       sortOrderUpdate: false,
       message: '輸入itemsId或sortOrder非正整數型別',

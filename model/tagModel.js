@@ -74,7 +74,7 @@ async function deleteTag(tagId) {
 async function getListByTag(tagId) {
   try {
     let listIds = [];
-    const tagQuery = `SELECT DISTINCT list_id
+    const tagQuery = `SELECT DISTINCT list_id ,tag_content
     FROM list_tag
     WHERE tag_content = (
         SELECT tag_content
@@ -82,13 +82,14 @@ async function getListByTag(tagId) {
         WHERE id = ?
     )`;
     const [listId] = await connection.execute(tagQuery, [tagId]);
+    console.log(listId);
 
     if (listId === null) return false;
     for (const row of listId) {
       listIds.push(row.list_id);
     }
-    console.log(listIds);
-    return listIds;
+
+    return { listIds, tagContent: listId[0].tag_content };
   } catch (error) {
     console.error('tag搜尋data的listId失敗:', error);
     throw new Error('tag搜尋data的listId失敗');

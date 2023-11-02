@@ -74,7 +74,7 @@ async function createItems(listId, itemsTitle) {
       itemsTitle,
       nowlistTotal + 1,
     ]);
-
+    console.log(`\u001b[33m`, `執行itemsData新增items`, `\u001b[37m`);
     return result.affectedRows === 1;
   } catch (error) {
     console.error('創建項目data錯誤:', error);
@@ -103,7 +103,7 @@ async function readItems(listId) {
         itemsUpdateTime: formattedUpdateTime,
       };
     });
-
+    console.log(`\u001b[33m`, `執行${listId}itemsData取得`, `\u001b[37m`);
     if (rows.length > 0) {
       return sortItemsByOrder(formattedItemsData);
     } else {
@@ -123,6 +123,7 @@ async function updatedItems(itemsId, itemsTitle) {
       itemsTitle,
       itemsId,
     ]);
+    console.log(`\u001b[33m`, `執行itemsData${itemsId}內容更新`, `\u001b[37m`);
     return result.affectedRows > 0;
   } catch (error) {
     console.error('更新項目data錯誤:', error);
@@ -144,6 +145,7 @@ async function ItemsSchedule(itemId) {
     const [canUpdateSchedule] = await connection.execute(updateScheduleQuery, [
       itemId,
     ]);
+    console.log(`\u001b[33m`, `執行itemsData${itemId}進度更新`, `\u001b[37m`);
     return canUpdateSchedule.affectedRows > 0;
   } catch (error) {
     console.error('項目進度異動data失敗:', error);
@@ -157,7 +159,7 @@ async function deleteItems(itemId) {
     // 刪除項目
     const deleteQuery = 'DELETE FROM items_data WHERE id = ?';
     const [result] = await connection.execute(deleteQuery, [itemId]);
-
+    console.log(`\u001b[33m`, `完成itemIdData${itemId}刪除`, `\u001b[37m`);
     return result.affectedRows > 0;
   } catch (error) {
     console.error('刪除項目data發生錯誤:', error);
@@ -172,11 +174,25 @@ async function updateSortOrder(id, newSortOrder) {
     // 啟動事務功能
     await conn.beginTransaction();
 
+    // 取得當前最大
+    const [getMaxSortOrder] = await connection.execute(
+      `SELECT MAX(items_sort_order) AS maxSortOrder
+      FROM items_data
+      WHERE list_id = (SELECT list_id FROM items_data WHERE id = ?)`,
+      [id]
+    );
+    const MaxSortOrder = getMaxSortOrder[0].maxSortOrder;
+    if (MaxSortOrder < newSortOrder) {
+      newSortOrder = MaxSortOrder;
+    }
+
     //取得當前項目
     const [rows] = await connection.execute(
       'SELECT items_sort_order, list_id FROM items_data WHERE id = ?',
       [id]
     );
+
+    console.log(rows);
 
     if (rows.length === 0) {
       throw new Error('無此項目');
@@ -198,7 +214,11 @@ async function updateSortOrder(id, newSortOrder) {
         [listId, currentSortOrder, newSortOrder]
       );
     }
-
+    console.log(
+      `\u001b[33m`,
+      `執行${id}更換至應${newSortOrder}順位`,
+      `\u001b[37m`
+    );
     // 更新目標序
     await connection.execute(
       'UPDATE items_data SET items_sort_order = ? WHERE id = ?',
@@ -225,6 +245,7 @@ async function getListIdByItemsId(itemsId) {
 
     if (itemsDataRows && itemsDataRows.length > 0) {
       const listId = itemsDataRows[0].list_id;
+      console.log(`\u001b[34m`, `取得${itemsId}對應listId`, `\u001b[37m`);
       return listId;
     } else {
       return null;
