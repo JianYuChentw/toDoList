@@ -18,6 +18,15 @@ app.use(
 
 app.use(express.json({ limit: '1mb' }));
 
+//錯誤處理
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError) {
+    console.log('無法解析內容');
+    return res.status(400).json({ error: '無法解析內容' });
+  }
+  next();
+});
+
 app.use('/', routes);
 
 app.listen(port, () => {
