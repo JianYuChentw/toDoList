@@ -33,9 +33,10 @@ async function createToDoItems(req, res) {
 
 //讀取項目(指定清單)
 async function readToDoItems(req, res) {
-  const { listId } = req.body;
+  const listId = req.query.id;
+  console.log(typeof listId);
 
-  if (isNaN(listId) || typeof listId === 'string') {
+  if (isNaN(listId)) {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
   try {

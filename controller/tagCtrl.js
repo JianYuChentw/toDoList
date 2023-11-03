@@ -43,10 +43,32 @@ async function creatToDoTag(req, res) {
         .json({ Status: false, message: '該清單內標籤已重複！' });
     }
 
-    const canCreateTag = await tagModel.createTag(userId, listId, tagContent);
+    const nowExistingTag = await tagModel.getTags(userId);
+
+    if (nowExistingTag != null) {
+      const haveRepeatTag = nowExistingTag.find(
+        (tag) => tag.tagContent === tagContent
+      );
+      if (haveRepeatTag) {
+        const matchingTagId = haveRepeatTag.id;
+        const addTagListAssociation = await tagModel.addTagListAssociation(
+          listId,
+          haveRepeatTag.id
+        );
+        return res
+          .status(200)
+          .json({ Status: true, message: '加入現有標籤清單' });
+      }
+    }
+
+    const canCreateTag = await tagModel.createTag(tagContent);
     if (!canCreateTag) {
       return res.status(200).json({ Status: false, message: '新增標籤失敗' });
     }
+    const addTagListAssociation = await tagModel.addTagListAssociation(
+      listId,
+      canCreateTag
+    );
     return res.status(200).json({ Status: true, message: '新增標籤成功' });
   } catch (error) {
     console.error('新增標籤時發生錯誤:', error);
@@ -79,7 +101,7 @@ async function deleteToDoTag(req, res) {
 
 // 讀取tag相關清單
 async function readToDoTag(req, res) {
-  const { tagId, goalPage } = req.body;
+  const { tagId, desirePpage, desiredQuantity } = req.body;
   if (isNaN(tagId) || typeof tagId === 'string') {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
@@ -91,7 +113,11 @@ async function readToDoTag(req, res) {
     }
 
     const listIds = await tagModel.getListByTag(tagId);
-    const getList = await listModel.readGiveList(listIds.listIds, goalPage);
+    const getList = await listModel.readGiveList(
+      listIds.listIds,
+      desirePpage,
+      desiredQuantity
+    );
     if (!getList) {
       return res.status(200).json({ Status: false, message: '輸入標籤有誤' });
     }
@@ -99,8 +125,8 @@ async function readToDoTag(req, res) {
       loginStatus: true,
       tagContent: listIds.tagContent,
       toDoList: getList.rows,
-      nowPage: getList.goalPage,
-      totlePage: getList.totlePage,
+      nowPage: getList.desirePpage,
+      totlePage: getList.totalPage,
     });
   } catch (error) {
     console.error('讀取標籤相關清單時發生錯誤:', error);

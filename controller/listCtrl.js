@@ -1,5 +1,6 @@
 const listModel = require('../model/listModel');
 const tools = require('../tool');
+const tagModel = require('../model/tagModel');
 
 //增新清單
 async function createToDoList(req, res) {
@@ -49,26 +50,42 @@ async function updatedToDoList(req, res) {
   }
 }
 
-// 讀取清單(可指定頁數)
+// 讀取清單(可指定總頁數及單頁數量)
 async function readToDoList(req, res) {
-  const goalPage = req.body.goalPage;
-  if (isNaN(goalPage) || typeof goalPage === 'string') {
+  const { desirePpage, desiredQuantity } = req.body;
+  if (
+    isNaN(desirePpage) ||
+    typeof desirePpage !== 'number' ||
+    isNaN(desiredQuantity) ||
+    typeof desiredQuantity !== 'number'
+  ) {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
-  if (goalPage === 0) {
+  if (desirePpage === 0 || desiredQuantity === 0) {
     return res.status(200).json({ Status: false, message: '非有效目標頁' });
   }
   //要加入讀取資料
   try {
     const userId = tools.verifyToken(req.session.token).userId;
-    const listData = await listModel.readList(userId, goalPage);
+    const listData = await listModel.readList(
+      userId,
+      desirePpage,
+      desiredQuantity
+    );
+    const userTag = await tagModel.getTags(userId);
     if (!listData) {
       return res.json({ Status: false, message: '重新確認目標頁' });
     }
     const list = await listData.rows;
-    const nowPage = await listData.nowPage;
-    const totlePage = await listData.totlePage;
-    return res.json({ Status: true, toDoList: list, nowPage, totlePage });
+    const nowPage = await listData.desirePpage;
+    const totlePage = await listData.totalPage;
+    return res.json({
+      Status: true,
+      tag: userTag,
+      toDoList: list,
+      nowPage,
+      totlePage,
+    });
   } catch (error) {
     console.error('取得時發生錯誤:', error);
     return res.status(500).json({ Status: false, message: '伺服器錯誤' });

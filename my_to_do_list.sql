@@ -5,8 +5,9 @@ SELECT * FROM`user_data`;
 SELECT * FROM`list_data`;
 SELECT * FROM`items_data`; 
 SELECT * FROM`list_tag`;
+SELECT * FROM`list_tag_association`;
 
-
+-- drop table `list_tag`;
 
 create table `user_data` (
 `id` int auto_increment primary key, -- 使用者ＩＤ
@@ -43,12 +44,18 @@ FOREIGN KEY (`list_id`) REFERENCES `list_data`(`id`) ON DELETE CASCADE -- 外鍵
 
 create table `list_tag`(
 `id` int auto_increment primary key, -- 標籤ＩＤ
-`user_id` int, -- 使用者ＩＤ(FK)
-`list_id` int, -- 清單ＩＤ(FK)
-`tag_content` varchar(50) NOT NULL, -- tag內容
-FOREIGN KEY (`user_id`) REFERENCES `user_data`(`id`), -- 外鍵userId
-FOREIGN KEY (`list_id`) REFERENCES `list_data`(`id`) ON DELETE CASCADE -- 外鍵listId子關聯性
+`tag_content` varchar(50) NOT NULL -- tag內容
 );
+
+
+CREATE TABLE `list_tag_association` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `list_id` INT, -- 清單ＩＤ(FK)
+  `tag_id` INT, -- 標籤ＩＤ(FK)
+  FOREIGN KEY (`list_id`) REFERENCES `list_data`(`id`) ON DELETE CASCADE, -- 外鍵listId子關聯性
+  FOREIGN KEY (`tag_id`) REFERENCES `list_tag`(`id`) ON DELETE CASCADE -- 外鍵tagId子關聯性
+);
+
 
 -- 觸發器 增加項目時更新清單項目總數list_total
 DELIMITER //

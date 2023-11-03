@@ -19,40 +19,39 @@ async function createList(userId, listTitle) {
 }
 
 // 讀取（可指定目標頁）
-async function readList(id, nowPage) {
+async function readList(id, desirePpage, desiredQuantity) {
   try {
-    // 計算起始行數
-    const startRow = (nowPage - 1) * 5;
+    // 起始行
+    const startRow = (desirePpage - 1) * desiredQuantity;
 
-    //查詢總行數
+    // 總行數
     const countQuery =
       'SELECT COUNT(*) as totalRows FROM list_data WHERE user_id = ?';
     const [countResult] = await connection.execute(countQuery, [id]);
 
-    // 換算總頁數
-    const totlePage = Math.ceil(countResult[0].totalRows / 5);
+    // 總頁數
+    const totalPage = Math.ceil(countResult[0].totalRows / desiredQuantity);
 
-    //導入起始行數(ex:OFFSET 0為不忽略行數, OFFSET 5 忽略前5行)
     const selectQuery = `
-  SELECT 
-  list_data.id,
-  list_data.user_id AS userId,
-  list_data.list_title AS listTitle,
-  list_data.list_finsh AS listFinsh,
-  (list_data.list_total - list_data.list_finsh) AS itemsUndo,
-  list_data.list_total AS listTotal,
-  DATE_FORMAT(list_data.list_create_time, '%Y-%m-%d %H:%i:%s') AS listCreateTime,
-  DATE_FORMAT(list_data.list_update_time, '%Y-%m-%d %H:%i:%s') AS listUpdateTime,
-  (
-      SELECT JSON_ARRAYAGG(JSON_OBJECT('itemsTitle', items_data.items_title, 'itemsSortOrder', items_data.items_sort_order))
-      FROM items_data
-      WHERE list_data.id = items_data.list_id
-      ORDER BY items_data.items_sort_order
-  ) AS toDoitems
-    FROM list_data
-    WHERE list_data.user_id = ?
-    LIMIT 5 OFFSET ${startRow};
-  `;
+      SELECT 
+      list_data.id,
+      list_data.user_id AS userId,
+      list_data.list_title AS listTitle,
+      list_data.list_finsh AS listFinsh,
+      (list_data.list_total - list_data.list_finsh) AS itemsUndo,
+      list_data.list_total AS listTotal,
+      DATE_FORMAT(list_data.list_create_time, '%Y-%m-%d %H:%i:%s') AS listCreateTime,
+      DATE_FORMAT(list_data.list_update_time, '%Y-%m-%d %H:%i:%s') AS listUpdateTime,
+      (
+        SELECT JSON_ARRAYAGG(JSON_OBJECT('itemsTitle', items_data.items_title, 'itemsSortOrder', items_data.items_sort_order))
+        FROM items_data
+        WHERE list_data.id = items_data.list_id
+        ORDER BY items_data.items_sort_order
+      ) AS toDoitems
+      FROM list_data
+      WHERE list_data.user_id = ?
+      LIMIT ${desiredQuantity} OFFSET ${startRow};
+    `;
 
     const [rows] = await connection.execute(selectQuery, [id]);
 
@@ -64,65 +63,68 @@ async function readList(id, nowPage) {
           });
         }
       }
-      console.log(`\u001b[33m`, '取得list相關資料', `\u001b[37m`);
-      return { rows, nowPage, totlePage };
+      console.log('\u001b[33m', '執行取得指定listId相關內容', '\u001b[37m');
+      return { rows, desirePpage, totalPage };
     }
-    return [];
+    return false;
   } catch (error) {
-    console.error('查詢目標頁清單data時發生錯誤:', error);
-    throw new Error('查詢目標頁清單data時發生錯誤');
+    console.error('查詢清單data時發生錯誤:', error);
+    throw new Error('查詢清單data時發生錯誤');
   }
 }
 
 // 讀取（可指定ListId)
-async function readGiveList(listIds, goalPage) {
+async function readGiveList(listIds, desirePpage, desiredQuantity) {
   try {
-    const listIdsString = listIds.join(',');
-    // 計算起始行數
-    const startRow = (goalPage - 1) * 5;
-
-    // 查詢總行數
-    const countResult = [];
-
-    for (const listId of listIds) {
-      const deleteQuery =
-        'SELECT COUNT(*) as totalRows FROM list_data WHERE id IN (?)';
-      const [result] = await connection.execute(deleteQuery, [listId]);
-      countResult.push(result[0]);
-    }
-    // 換算總頁數
-    const totalRowsOneCount = countResult.filter(
-      (result) => result.totalRows === 1
-    ).length;
-    const totlePage = Math.ceil(totalRowsOneCount / 5);
-
-    // 導入起始行數(ex:OFFSET 0為不忽略行數, OFFSET 5 忽略前5行)
-
+    const startRow = (desirePpage - 1) * desiredQuantity;
+    const listIdString = listIds.join(', ');
+    console.log(listIdString);
     const selectQuery = `
-    SELECT 
-    list_data.id,
-    list_data.user_id AS userId,
-    list_data.list_title AS listTitle,
-    list_data.list_finsh AS listFinsh,
-    (list_data.list_total - list_data.list_finsh) AS itemsUndo,
-    list_data.list_total AS listTotal,
-    DATE_FORMAT(list_data.list_create_time, '%Y-%m-%d %H:%i:%s') AS listCreateTime,
-    DATE_FORMAT(list_data.list_update_time, '%Y-%m-%d %H:%i:%s') AS listUpdateTime
-    FROM list_data
-    WHERE list_data.id IN (${listIdsString})
-    GROUP BY list_data.id, list_data.user_id, list_data.list_title, list_data.list_finsh, list_data.list_total, list_data.list_create_time, list_data.list_update_time
-    LIMIT 5 OFFSET ${startRow};
+      SELECT 
+        list_data.id,
+        list_data.user_id AS userId,
+        list_data.list_title AS listTitle,
+        list_data.list_finsh AS listFinsh,
+        (list_data.list_total - list_data.list_finsh) AS itemsUndo,
+        list_data.list_total AS listTotal,
+        DATE_FORMAT(list_data.list_create_time, '%Y-%m-%d %H:%i:%s') AS listCreateTime,
+        DATE_FORMAT(list_data.list_update_time, '%Y-%m-%d %H:%i:%s') AS listUpdateTime,
+        (
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('itemsTitle', items_data.items_title, 'itemsSortOrder', items_data.items_sort_order))
+          FROM items_data
+          WHERE list_data.id = items_data.list_id
+          ORDER BY items_data.items_sort_order
+        ) AS toDoitems
+      FROM list_data
+      WHERE list_data.id IN (${listIdString})
+      LIMIT ${desiredQuantity} OFFSET ${startRow};
     `;
 
     const [rows] = await connection.execute(selectQuery);
 
     if (rows.length > 0) {
-      console.log(`\u001b[33m`, '執行取得指定listId相關內容', `\u001b[37m`);
+      for (const row of rows) {
+        if (row.toDoitems) {
+          row.toDoitems.sort((a, b) => {
+            return a.itemsSortOrder - b.itemsSortOrder;
+          });
+        }
+      }
 
-      return { rows, goalPage, totlePage };
-    } else {
-      return false;
+      // 計算行數
+      const countQuery = `SELECT COUNT(*) as totalRows FROM list_data WHERE list_data.id IN (${listIdString})`;
+      const [countResult] = await connection.execute(countQuery);
+
+      // 計算總頁數
+      const totalRows = countResult[0].totalRows;
+      const totalPage = Math.ceil(totalRows / desiredQuantity);
+
+      console.log('\u001b[33m', '執行取得指定listId相關內容', '\u001b[37m');
+
+      return { rows, desirePpage, totalPage };
     }
+
+    return false;
   } catch (error) {
     console.error('查詢清單data時發生錯誤:', error);
     throw new Error('查詢清單data時發生錯誤');

@@ -17,7 +17,7 @@ function canUserFunctionMiddleware(req, res, next) {
 }
 
 //個人to-do list(清單頁-指定前往第幾頁)
-router.get('/MyToDoList', canUserFunctionMiddleware, toDoList.readToDoList);
+router.post('/MyToDoList', canUserFunctionMiddleware, toDoList.readToDoList);
 
 //個人to-do items(項目頁)
 router.get(
@@ -112,7 +112,7 @@ router.delete(
   toDoTag.deleteToDoTag
 );
 //讀取指定標籤相關清單
-router.get(
+router.post(
   '/readMyToDoTagList',
   canUserFunctionMiddleware,
   toDoTag.readToDoTag
