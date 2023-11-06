@@ -95,7 +95,11 @@ async function readToDoTag(req, res) {
     }
 
     const listIds = await tagModel.getListByTag(tagId);
-    const getList = await listModel.readGiveList(listIds.listIds, goalPage);
+    const getList = await listModel.readGiveList(
+      listIds.listIds,
+      desirePpage,
+      desiredQuantity
+    );
     if (!getList) {
       return res.status(200).json({ Status: false, message: '輸入標籤有誤' });
     }
