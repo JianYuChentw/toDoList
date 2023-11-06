@@ -89,22 +89,24 @@ async function deleteTag(tagId) {
 async function getListByTag(tagId) {
   try {
     let listIds = [];
-    const tagQuery = `SELECT DISTINCT list_id ,tag_content
-    FROM list_tag
-    WHERE tag_content = (
-        SELECT tag_content
-        FROM list_tag
-        WHERE id = ?
-    )`;
+    const tagQuery = `
+        SELECT DISTINCT 
+        lta.list_id 
+      FROM 
+        list_tag_association lta
+      JOIN
+        list_tag lt ON lta.tag_id = lt.id
+      WHERE
+        lt.id = ?`;
     const [listId] = await connection.execute(tagQuery, [tagId]);
-    console.log(listId);
 
     if (listId === null) return false;
     for (const row of listId) {
       listIds.push(row.list_id);
     }
+    console.log(`\u001b[33m`, '完成tagId對應listId查詢', `\u001b[37m`);
 
-    return { listIds, tagContent: listId[0].tag_content };
+    return { listIds };
   } catch (error) {
     console.error('tag搜尋data的listId失敗:', error);
     throw new Error('tag搜尋data的listId失敗');
@@ -114,14 +116,23 @@ async function getListByTag(tagId) {
 //確認標籤是否為本人
 async function checkTagIsParty(userId, tagId) {
   try {
-    const tagDataQuery = 'SELECT user_id FROM list_tag WHERE id = ?';
+    const tagDataQuery = `
+    SELECT ld.user_id
+    FROM list_data ld
+    JOIN list_tag_association lta ON ld.id = lta.list_id
+    WHERE lta.tag_id = ?;
+    `;
     const [tagDataRows] = await connection.execute(tagDataQuery, [tagId]);
-
-    if (tagDataRows && tagDataRows.length > 0) {
-      const tagDataUserId = tagDataRows[0].user_id;
-
-      return userId === tagDataUserId;
+    if (tagDataRows.length === 0) {
+      return false;
     }
+    console.log(
+      `\u001b[33m`,
+      `${userId === tagDataRows[0].user_id}本人`,
+      `\u001b[37m`
+    );
+
+    return userId === tagDataRows[0].user_id;
   } catch (error) {
     console.error('data取得userId時發生錯誤:', error);
     throw new Error('data取得userId時發生錯誤');
