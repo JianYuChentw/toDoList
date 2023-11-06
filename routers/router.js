@@ -8,11 +8,14 @@ const tools = require('../tool');
 
 //中介層驗證身份
 function canUserFunctionMiddleware(req, res, next) {
-  const token = req.session.token;
+  // const token = req.session.token;
+  const token = req.headers.authorization.replace('Bearer ', '');
+  console.log(token);
   const user = tools.verifyToken(token);
   if (user === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
   }
+  req.user = user.userId;
   next();
 }
 
@@ -31,7 +34,7 @@ router.get(
 router.post('/LoginMyToDoList', user.login);
 
 //登出
-router.get('/LogOutMyToDoList', canUserFunctionMiddleware, user.logOut);
+router.get('/LogOutMyToDoList', user.logOut);
 
 //註冊
 router.post('/registerMyToDoList', user.register);
