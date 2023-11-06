@@ -39,33 +39,56 @@ async function getTags(userId) {
 }
 
 //新增tag
-async function createTag(userId, listId, tagContent) {
+async function createTag(tagContent) {
   try {
-    const insertQuery =
-      'INSERT INTO list_tag (user_id, list_id,tag_content) VALUES (?, ?, ?)';
-    const [result] = await connection.execute(insertQuery, [
-      userId,
-      listId,
-      tagContent,
-    ]);
-    console.error('新增tag成功');
-    return result.affectedRows === 1;
+    const insertQuery = 'INSERT INTO list_tag (tag_content) VALUES (?)';
+    const [result] = await connection.execute(insertQuery, [tagContent]);
+    console.log(`\u001b[33m`, '新增tag成功', `\u001b[37m`);
+    const insertId = result.insertId;
+    console.log(`\u001b[33m`, `新增tag的ID：${insertId}`, `\u001b[37m`);
+    if (result.affectedRows === 0) {
+      return false;
+    }
+    return insertId;
   } catch (error) {
     console.error('新增tag發錯誤', error);
     throw new Error('data新增tag錯誤');
   }
 }
 
-//tag複查
+// 新增tag與list中介表
+async function addTagListAssociation(listId, tagId) {
+  try {
+    const insertQuery = `INSERT INTO list_tag_association (list_id, tag_id) VALUES (?, ?)`;
+    const result = await connection.query(insertQuery, [listId, tagId]);
+    console.log(`\u001b[33m`, '執行tag&list中介表增加', `\u001b[37m`);
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error('新增tag與list發生錯誤', error);
+    throw new Error('data新增tag與list錯誤');
+  }
+}
+
+//複查清單內有無tag重複
 async function checkTagRepeat(listId, tagContent) {
   try {
-    const selecttagContent =
-      'SELECT  *  FROM list_tag WHERE  `list_id` = ? and tag_content = ?';
-    const [selectResult] = await connection.query(selecttagContent, [
-      listId,
-      tagContent,
-    ]);
-    return selectResult.length === 0;
+    const selecttagContent = `
+    SELECT
+      list_tag.tag_content
+    FROM
+      list_tag_association
+    JOIN
+      list_tag ON list_tag_association.tag_id = list_tag.id
+    WHERE
+      list_tag_association.list_id = ?;
+  `;
+    const [selectResult] = await connection.query(selecttagContent, [listId]);
+    if (selectResult.some((row) => row.tag_content === tagContent)) {
+      console.log(`\u001b[31m`, '重複標籤', `\u001b[37m`);
+      return false;
+    }
+    console.log(`\u001b[33m`, '無重複標籤', `\u001b[37m`);
+    return true;
   } catch (error) {
     console.error('data查詢tag重複錯誤:', error);
     // 返回伺服器錯誤
@@ -146,4 +169,5 @@ module.exports = {
   checkTagIsParty,
   getListByTag,
   getTags,
+  addTagListAssociation,
 };
