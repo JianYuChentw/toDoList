@@ -1,5 +1,6 @@
 const listModel = require('../model/listModel');
 const tools = require('../tool');
+const tagModel = require('../model/tagModel');
 
 //增新清單
 async function createToDoList(req, res) {
@@ -63,12 +64,9 @@ async function readToDoList(req, res) {
   ) {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
-  if (goalPage === 0) {
-    return res.status(200).json({ Status: false, message: '非有效目標頁' });
-  }
   //要加入讀取資料
   try {
-    const userId = tools.verifyToken(req.session.token).userId;
+    // const userId = tools.verifyToken(req.session.token).userId;
     const listData = await listModel.readList(
       userId,
       desirePpage,
