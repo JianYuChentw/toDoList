@@ -1,4 +1,4 @@
-const { connection } = require('../database/data');
+const { connection, escape } = require('../database/data');
 const tool = require('../tool');
 
 // 新增
@@ -50,7 +50,7 @@ async function readList(id, desirePpage, desiredQuantity) {
       ) AS toDoitems
       FROM list_data
       WHERE list_data.user_id = ?
-      LIMIT ${desiredQuantity} OFFSET ${startRow};
+      LIMIT ${escape(desiredQuantity)} OFFSET ${escape(startRow)};
     `;
 
     const [rows] = await connection.execute(selectQuery, [id]);
