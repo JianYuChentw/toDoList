@@ -5,17 +5,32 @@ const tools = require('../tool');
 async function getTags(userId) {
   try {
     let tags = [];
-    const tagQuery = `SELECT id, tag_content
-    FROM list_tag
-    WHERE user_id = ?`;
+    //
+    const tagQuery = `
+    SELECT 
+    lt.id AS tagId
+    ,lt.tag_content AS tagContent
+    FROM 
+      list_tag lt
+    JOIN 
+      list_tag_association lta ON lt.id = lta.tag_id
+    JOIN 
+      list_data ld ON lta.list_id = ld.id
+    WHERE ld.user_id = ?;
+    `;
 
     const [tagRows] = await connection.execute(tagQuery, [userId]);
-    if (tagRows === null) return false;
+    if (tagRows.length === 0) return null;
 
     for (const row of tagRows) {
-      tags.push({ id: row.id, tag_content: row.tag_content });
+      const newTag = { id: row.tagId, tagContent: row.tagContent };
+
+      if (!tags.some((tag) => tag.tagContent === newTag.tagContent)) {
+        tags.push(newTag);
+      }
     }
 
+    console.log(`\u001b[33m`, `取得${userId}的Tag`, `\u001b[37m`);
     return tags;
   } catch (error) {
     console.error('userId搜尋data的tagId失敗:', error);

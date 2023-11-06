@@ -76,10 +76,17 @@ async function readToDoList(req, res) {
     if (!listData) {
       return res.json({ Status: false, message: '重新確認目標頁' });
     }
+    console.log(listData);
     const list = await listData.rows;
-    const nowPage = await listData.nowPage;
-    const totlePage = await listData.totlePage;
-    return res.json({ Status: true, toDoList: list, nowPage, totlePage });
+    const nowPage = await listData.desirePpage;
+    const totlePage = await listData.totalPage;
+    return res.json({
+      Status: true,
+      tag: userTag,
+      toDoList: list,
+      nowPage,
+      totlePage,
+    });
   } catch (error) {
     console.error('取得時發生錯誤:', error);
     return res.status(500).json({ Status: false, message: '伺服器錯誤' });

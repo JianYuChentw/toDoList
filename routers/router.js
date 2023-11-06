@@ -10,7 +10,6 @@ const tools = require('../tool');
 function canUserFunctionMiddleware(req, res, next) {
   // const token = req.session.token;
   const token = req.headers.authorization.replace('Bearer ', '');
-  console.log(token);
   const user = tools.verifyToken(token);
   if (user === null) {
     return res.json({ loginStatus: false, message: '非登入狀態' });
@@ -115,7 +114,7 @@ router.delete(
   toDoTag.deleteToDoTag
 );
 //讀取指定標籤相關清單
-router.get(
+router.post(
   '/readMyToDoTagList',
   canUserFunctionMiddleware,
   toDoTag.readToDoTag

@@ -18,6 +18,7 @@ async function createList(userId, listTitle) {
   }
 }
 
+// 讀取（個人全部)
 async function readList(id, desirePpage, desiredQuantity) {
   try {
     // 起始行
