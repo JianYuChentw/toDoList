@@ -107,8 +107,8 @@ async function readToDoTag(req, res) {
       loginStatus: true,
       tagContent: listIds.tagContent,
       toDoList: getList.rows,
-      nowPage: getList.goalPage,
-      totlePage: getList.totlePage,
+      nowPage: getList.desirePpage,
+      totlePage: getList.totalPage,
     });
   } catch (error) {
     console.error('讀取標籤相關清單時發生錯誤:', error);

@@ -78,7 +78,6 @@ async function readGiveList(listIds, desirePpage, desiredQuantity) {
   try {
     const startRow = (desirePpage - 1) * desiredQuantity;
     const listIdString = listIds.join(', ');
-    console.log(listIdString);
     const selectQuery = `
       SELECT 
         list_data.id,
@@ -178,7 +177,33 @@ async function checkIsParty(id, listId) {
   }
 }
 
+// 檢索清單
+async function listFuzzySearch(userId, index) {
+  try {
+    let lists = [];
+    const listDataQuery = `
+      SELECT id
+      FROM list_data
+      WHERE user_id = ? 
+      AND list_title LIKE ?;
+    `;
+    const [searchResult] = await connection.query(listDataQuery, [
+      userId,
+      `%${index}%`,
+    ]);
+    if (searchResult.length === 0) return null;
+    searchResult.map((result) => {
+      lists.push(result.id);
+    });
+    return lists;
+  } catch (error) {
+    console.error('index取得listData時發生錯誤:', error);
+    throw new Error('index取得listData時發生錯誤');
+  }
+}
+
 module.exports = {
+  listFuzzySearch,
   createList,
   readList,
   updatedList,

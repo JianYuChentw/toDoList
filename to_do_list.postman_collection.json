@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "66c064ab-ede7-4d9e-bd77-3eaa4f1650ed",
 		"name": "to do list",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
 		"_exporter_id": "28506239"
 	},
 	"item": [
@@ -11,29 +11,32 @@
 			"item": [
 				{
 					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"jwt_token\", pm.response.json().token)",
+									"// pm.globals.set(\"jwt_token\", pm.response.json().token);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n \"account\" :\"newuser000\",\n  \"password\" :\"123456\"\n}",
+							"raw": "{\n \"account\" :\"newuser2\",\n  \"password\" :\"123456\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/LoginMyToDoList",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"LoginMyToDoList"
-							]
-						}
+						"url": "http://localhost:3000/LoginMyToDoList"
 					},
 					"response": []
 				},
@@ -44,43 +47,41 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"account\":\"newuser000\",\n    \"password\":\"123456\"\n}",
+							"raw": "{\n    \"account\":\"newuser2\",\n    \"password\":\"123456\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/registerMyToDoList",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"registerMyToDoList"
-							]
-						}
+						"url": "http://localhost:3000/registerMyToDoList"
 					},
 					"response": []
 				},
 				{
 					"name": "LogOut",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const resp = pm.response.json();",
+									"pm.environment.set(\"jwt_token\", resp.token)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": ""
+							}
+						},
 						"method": "GET",
 						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/LogOutMyToDoList",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"LogOutMyToDoList"
-							]
-						}
+						"url": "http://localhost:3000/LogOutMyToDoList"
 					},
 					"response": []
 				}
@@ -91,22 +92,69 @@
 			"item": [
 				{
 					"name": "MyToDoList",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
-						"method": "GET",
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
+						"method": "POST",
 						"header": [
 							{
-								"key": "",
-								"value": "",
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
 								"type": "text",
 								"disabled": true
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"goalPage\":1\n}",
+							"raw": "{\n    \"desirePpage\":1,\n    \"desiredQuantity\":2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/MyToDoList"
+					},
+					"response": []
+				},
+				{
+					"name": "MyToDoItems",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -114,14 +162,20 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/MyToDoList",
+							"raw": "http://localhost:3000/MyToDoListShow?id=26",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
-								"MyToDoList"
+								"MyToDoListShow"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "26"
+								}
 							]
 						}
 					},
@@ -130,86 +184,124 @@
 				{
 					"name": "CreateList",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"title\":\"我是清單7\" \n}\n  ",
+							"raw": "{\n    \"title\":\"我是1的清單3\" \n}\n  ",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/createMyToDoList",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"createMyToDoList"
-							]
-						}
+						"url": "http://localhost:3000/createMyToDoList"
 					},
 					"response": []
 				},
 				{
 					"name": "RemoveList",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "DELETE",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n     \"listId\":[20]\n}",
+							"raw": "{\n     \"listId\":[5]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/removeToDoList",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"removeToDoList"
-							]
-						}
+						"url": "http://localhost:3000/removeToDoList"
 					},
 					"response": []
 				},
 				{
 					"name": "UpdateList",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"listId\":21, \n    \"listTitle\":\"被更新測試清單2\"\n}",
+							"raw": "{\n    \"listId\":23, \n    \"listTitle\":\"被更新測試清單1\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/updateMyToDoList",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"updateMyToDoList"
-							]
-						}
+						"url": "http://localhost:3000/updateMyToDoList"
 					},
 					"response": []
+				},
+				{
+					"name": "searchList",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"index\":\"清\",\n    \"desirePpage\":1,\n    \"desiredQuantity\":10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/searchMyToDoList"
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": {
+					"token": "{{jwt_token}}"
+				}
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
 				}
 			]
 		},
@@ -217,173 +309,122 @@
 			"name": "ItemsFunction",
 			"item": [
 				{
-					"name": "MyToDoItems",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"listId\":11\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:3000/MyToDoListShow",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"MyToDoListShow"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "CreateItems",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"listId\":11,\n    \"itemsTitle\":\"11項目6\"\n}\n",
+							"raw": "{\n    \"listId\":26,\n    \"itemsTitle\":\"這是項目5\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/createMyToDoItems",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"createMyToDoItems"
-							]
-						}
+						"url": "http://localhost:3000/createMyToDoItems"
 					},
 					"response": []
 				},
 				{
 					"name": "UpdateItems",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"itemsTitle\":\"被更新的項目\",\n     \"itemsId\":23\n}",
+							"raw": "{\n    \"itemsTitle\":\"被更新的項目\",\n     \"itemsId\":24\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/updateMyToDoItems",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"updateMyToDoItems"
-							]
-						}
+						"url": "http://localhost:3000/updateMyToDoItems"
 					},
 					"response": []
 				},
 				{
 					"name": "RemoveItems",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "DELETE",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"itemsId\":18\n}",
+							"raw": "{\n    \"itemsId\":25\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/removeMyToDoItems",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"removeMyToDoItems"
-							]
-						}
+						"url": "http://localhost:3000/removeMyToDoItems"
 					},
 					"response": []
 				},
 				{
 					"name": "iTemsOrderMove",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"itemsId\":21,\n    \"sortOrder\":5\n}",
+							"raw": "{\n    \"itemsId\":25,\n    \"sortOrder\":1\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/MyToDoItemsOrderMove",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"MyToDoItemsOrderMove"
-							]
-						}
+						"url": "http://localhost:3000/MyToDoItemsOrderMove"
 					},
 					"response": []
 				},
 				{
 					"name": "updateSchedule",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{ \n    \"itemsId\":\"\"\n  }",
+							"raw": "{ \n    \"itemsId\":26\n  }",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/updateMyToDoItemsSchedule",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"updateMyToDoItemsSchedule"
-							]
-						}
+						"url": "http://localhost:3000/updateMyToDoItemsSchedule"
 					},
 					"response": []
 				}
@@ -395,110 +436,111 @@
 				{
 					"name": "CreateTag",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"listId\":17,\n    \"tagContent\":\"這是tag4\"\n}",
+							"raw": "{\n    \"listId\":1,\n    \"tagContent\":\"這是tag1\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/createMyToDoTag",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"createMyToDoTag"
-							]
-						}
+						"url": "http://localhost:3000/createMyToDoTag"
 					},
 					"response": []
 				},
 				{
 					"name": "DeleteTag",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "DELETE",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"tagId\" :7\n}",
+							"raw": "{\n  \"tagId\" :4\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/deleteMyToDoTag",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"deleteMyToDoTag"
-							]
-						}
+						"url": "http://localhost:3000/deleteMyToDoTag"
 					},
 					"response": []
 				},
 				{
 					"name": "ReadTagList",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
-						"method": "GET",
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
+						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"tagId\":16,\n    \"goalPage\":1\n}",
+							"raw": "{\n    \"tagId\":1,\n    \"desirePpage\":1,\n    \"desiredQuantity\":10\n    \n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/readMyToDoTagList",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"readMyToDoTagList"
-							]
-						}
+						"url": "http://localhost:3000/readMyToDoTagList"
 					},
 					"response": []
 				},
 				{
 					"name": "getMyTag",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "GET",
 						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/getMyToDoTag",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"getMyToDoTag"
-							]
-						}
+						"url": "http://localhost:3000/getMyToDoTag"
 					},
 					"response": []
 				}
 			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
 		}
 	]
 }

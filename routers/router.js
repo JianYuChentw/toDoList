@@ -60,6 +60,13 @@ router.delete(
   toDoList.deleteToDoList
 );
 
+//搜尋清單
+router.post(
+  '/searchMyToDoList',
+  canUserFunctionMiddleware,
+  toDoList.searchToDoList
+);
+
 / 項目功能 /;
 //新增項目
 router.post(
