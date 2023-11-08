@@ -10,7 +10,6 @@ async function createToDoList(req, res) {
     return res.json({ Status: true, message: '清單輸入不得為空' });
   }
   try {
-    // const userId = tools.verifyToken(req.session.token).userId;
     const createResult = await listModel.createList(userId, listTitle);
     if (!createResult) {
       return res.json({ Status: false, message: '新增清單失敗' });
@@ -35,7 +34,6 @@ async function updatedToDoList(req, res) {
     return res.json({ Status: false, message: '更新清單輸入不得為空' });
   }
   try {
-    // const userId = tools.verifyToken(req.session.token).userId;
     const isParty = await listModel.checkIsParty(userId, listId);
     if (!isParty) {
       return res.status(200).json({ Status: false, message: '無此清單' });
@@ -60,8 +58,6 @@ async function searchToDoList(req, res) {
     return res.json({ Status: false, message: '更新清單輸入不得為空' });
   }
   try {
-    // const userId = tools.verifyToken(req.session.token).userId;
-
     const lists = await listModel.listFuzzySearch(userId, index);
     if (lists === null) {
       return res.status(200).json({ Status: false, message: '無相關清單' });
@@ -135,7 +131,6 @@ async function deleteToDoList(req, res) {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
   try {
-    // const userId = tools.verifyToken(req.session.token).userId;
     const isParty = await listModel.checkIsParty(userId, listId[0]);
 
     if (!isParty) {

@@ -13,7 +13,6 @@ async function createToDoItems(req, res) {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
   try {
-    // const userId = tools.verifyToken(req.session.token).userId;
     const isParty = await listModel.checkIsParty(userId, listId);
 
     if (!isParty) {
@@ -41,7 +40,6 @@ async function readToDoItems(req, res) {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
   try {
-    // const userId = tools.verifyToken(req.session.token).userId;
     const isParty = await listModel.checkIsParty(userId, listId);
 
     if (!isParty) {
@@ -74,7 +72,6 @@ async function deleteToDoItems(req, res) {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
   try {
-    // const userId = tools.verifyToken(req.session.token).userId;
     const listId = await itemsModel.getListIdByItemsId(itemsId);
     const isParty = await listModel.checkIsParty(userId, listId);
 
@@ -109,7 +106,6 @@ async function updateToDoItems(req, res) {
   }
 
   try {
-    // const userId = tools.verifyToken(req.session.token).userId;
     const listId = await itemsModel.getListIdByItemsId(itemsId);
     const isParty = await listModel.checkIsParty(userId, listId);
 
@@ -142,7 +138,6 @@ async function updatedItemsSchedule(req, res) {
       .json({ Status: false, message: '輸入itemsId非正整數型別' });
   }
   try {
-    // const userId = tools.verifyToken(req.session.token).userId;
     const listId = await itemsModel.getListIdByItemsId(itemsId);
     const isParty = await listModel.checkIsParty(userId, listId);
 
@@ -176,7 +171,6 @@ async function changeItemSort(req, res) {
     });
   }
   try {
-    // const userId = tools.verifyToken(req.session.token).userId;
     const listId = await itemsModel.getListIdByItemsId(itemsId);
     const isParty = await listModel.checkIsParty(userId, listId);
 

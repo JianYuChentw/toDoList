@@ -5,7 +5,6 @@ const listModel = require('../model/listModel');
 //取得自己標籤
 async function getMyTiDoTag(req, res) {
   try {
-    // const userId = tools.verifyToken(req.session.token).userId;
     const userId = req.user;
     const getToDoTagIds = await tagModel.getTags(userId);
     if (!getToDoTagIds) {
@@ -31,7 +30,6 @@ async function creatToDoTag(req, res) {
   }
 
   try {
-    // const userId = tools.verifyToken(req.session.token).userId;
     const checkPass = await listModel.checkIsParty(userId, listId);
 
     if (!checkPass) {
@@ -86,7 +84,6 @@ async function deleteToDoTag(req, res) {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
   try {
-    // const userId = tools.verifyToken(req.session.token).userId;
     const isParty = await tagModel.checkTagIsParty(userId, tagId);
     if (!isParty) {
       return res.status(200).json({ Status: false, message: '無此標籤' });
@@ -110,7 +107,6 @@ async function readToDoTag(req, res) {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
   try {
-    // const userId = tools.verifyToken(req.session.token).userId;
     const isParty = await tagModel.checkTagIsParty(userId, tagId);
     if (!isParty) {
       return res.status(200).json({ Status: false, message: '無此標籤' });

@@ -16,7 +16,6 @@ async function login(req, res) {
     ///給與權限動作
     const userId = await chekMemberResult.userId;
     const token = tools.makeToken({ userId }, 1200); //20min過期
-    // req.session.token = token;
 
     console.log('登入成功');
     return res.json({
@@ -47,8 +46,6 @@ async function register(req, res) {
 
 //登出
 function logOut(req, res) {
-  // delete req.session.token;
-
   console.log('已登出');
   res.json({ loginStatus: false, message: '登出成功', token: 'yorAreLogOut' });
 }
