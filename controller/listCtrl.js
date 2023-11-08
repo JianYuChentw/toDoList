@@ -52,9 +52,45 @@ async function updatedToDoList(req, res) {
   }
 }
 
+//模糊搜尋清單
+async function searchToDoList(req, res) {
+  const { index, desirePpage, desiredQuantity } = req.body;
+  const userId = req.user;
+  if (index === null || index.length === 0) {
+    return res.json({ Status: false, message: '更新清單輸入不得為空' });
+  }
+  try {
+    // const userId = tools.verifyToken(req.session.token).userId;
+
+    const lists = await listModel.listFuzzySearch(userId, index);
+    if (lists === null) {
+      return res.status(200).json({ Status: false, message: '無相關清單' });
+    }
+
+    const getList = await listModel.readGiveList(
+      lists,
+      desirePpage,
+      desiredQuantity
+    );
+    if (!getList) {
+      return res.status(200).json({ Status: false, message: '輸入內容有誤' });
+    }
+    return res.json({
+      loginStatus: true,
+      toDoList: getList.rows,
+      nowPage: getList.desirePpage,
+      totlePage: getList.totalPage,
+    });
+  } catch (error) {
+    console.error('更新清單失敗:', error);
+    return res.status(500).json({ Status: false, message: '伺服器錯誤' });
+  }
+}
+
 // 讀取清單(可指定總頁數及單頁數量)
 async function readToDoList(req, res) {
   const { desirePpage, desiredQuantity } = req.body;
+  const userId = req.user;
   if (
     isNaN(desirePpage) ||
     typeof desirePpage !== 'number' ||
@@ -65,7 +101,6 @@ async function readToDoList(req, res) {
   }
   //要加入讀取資料
   try {
-    // const userId = tools.verifyToken(req.session.token).userId;
     const listData = await listModel.readList(
       userId,
       desirePpage,
@@ -75,7 +110,6 @@ async function readToDoList(req, res) {
     if (!listData) {
       return res.json({ Status: false, message: '重新確認目標頁' });
     }
-    console.log(listData);
     const list = await listData.rows;
     const nowPage = await listData.desirePpage;
     const totlePage = await listData.totalPage;
