@@ -18,6 +18,8 @@ app.use(
 
 app.use(express.json({ limit: '1mb' }));
 
+app.use('/', routes);
+
 //錯誤處理
 app.use((err, req, res, next) => {
   if (err) {
@@ -26,9 +28,6 @@ app.use((err, req, res, next) => {
   }
   next();
 });
-
-app.use('/', routes);
-
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}/MyToDoList`);
 });
