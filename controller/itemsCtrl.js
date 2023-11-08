@@ -5,6 +5,7 @@ const tools = require('../tool');
 //新增項目
 async function createToDoItems(req, res) {
   const { listId, itemsTitle } = req.body;
+  const userId = req.user;
   if (itemsTitle.length === 0 || itemsTitle === null) {
     return res.json({ Status: true, message: '項目輸入不得為空' });
   }
@@ -12,7 +13,7 @@ async function createToDoItems(req, res) {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
   try {
-    const userId = tools.verifyToken(req.session.token).userId;
+    // const userId = tools.verifyToken(req.session.token).userId;
     const isParty = await listModel.checkIsParty(userId, listId);
 
     if (!isParty) {
@@ -34,13 +35,17 @@ async function createToDoItems(req, res) {
 //讀取項目(指定清單)
 async function readToDoItems(req, res) {
   const listId = req.query.id;
+<<<<<<< HEAD
   console.log(typeof listId);
+=======
+  const userId = req.user;
+>>>>>>> turn_right
 
   if (isNaN(listId)) {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
   try {
-    const userId = tools.verifyToken(req.session.token).userId;
+    // const userId = tools.verifyToken(req.session.token).userId;
     const isParty = await listModel.checkIsParty(userId, listId);
 
     if (!isParty) {
@@ -68,12 +73,12 @@ async function readToDoItems(req, res) {
 // 刪除項目
 async function deleteToDoItems(req, res) {
   const itemsId = req.body.itemsId;
-
+  const userId = req.user;
   if (isNaN(itemsId) || typeof itemsId === 'string') {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
   try {
-    const userId = tools.verifyToken(req.session.token).userId;
+    // const userId = tools.verifyToken(req.session.token).userId;
     const listId = await itemsModel.getListIdByItemsId(itemsId);
     const isParty = await listModel.checkIsParty(userId, listId);
 
@@ -97,6 +102,7 @@ async function deleteToDoItems(req, res) {
 // 更新項目內容
 async function updateToDoItems(req, res) {
   const { itemsTitle, itemsId } = req.body;
+  const userId = req.user;
   if (isNaN(itemsId) || typeof itemsId === 'string') {
     return res
       .status(200)
@@ -107,7 +113,7 @@ async function updateToDoItems(req, res) {
   }
 
   try {
-    const userId = tools.verifyToken(req.session.token).userId;
+    // const userId = tools.verifyToken(req.session.token).userId;
     const listId = await itemsModel.getListIdByItemsId(itemsId);
     const isParty = await listModel.checkIsParty(userId, listId);
 
@@ -133,14 +139,14 @@ async function updateToDoItems(req, res) {
 // 異動項目進度
 async function updatedItemsSchedule(req, res) {
   const { itemsId } = req.body;
-
+  const userId = req.user;
   if (isNaN(itemsId) || typeof itemsId === 'string') {
     return res
       .status(200)
       .json({ Status: false, message: '輸入itemsId非正整數型別' });
   }
   try {
-    const userId = tools.verifyToken(req.session.token).userId;
+    // const userId = tools.verifyToken(req.session.token).userId;
     const listId = await itemsModel.getListIdByItemsId(itemsId);
     const isParty = await listModel.checkIsParty(userId, listId);
 
@@ -163,6 +169,7 @@ async function updatedItemsSchedule(req, res) {
 //項目排序異動
 async function changeItemSort(req, res) {
   const { itemsId, sortOrder } = req.body;
+  const userId = req.user;
   if (
     isNaN(itemsId) ||
     isNaN(sortOrder || sortOrder <= 0 || typeof itemsId === 'string')
@@ -173,7 +180,7 @@ async function changeItemSort(req, res) {
     });
   }
   try {
-    const userId = tools.verifyToken(req.session.token).userId;
+    // const userId = tools.verifyToken(req.session.token).userId;
     const listId = await itemsModel.getListIdByItemsId(itemsId);
     const isParty = await listModel.checkIsParty(userId, listId);
 

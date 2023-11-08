@@ -5,11 +5,12 @@ const tagModel = require('../model/tagModel');
 //增新清單
 async function createToDoList(req, res) {
   const listTitle = req.body.title;
+  const userId = req.user;
   if (listTitle === null || listTitle.length === 0) {
     return res.json({ Status: true, message: '清單輸入不得為空' });
   }
   try {
-    const userId = tools.verifyToken(req.session.token).userId;
+    // const userId = tools.verifyToken(req.session.token).userId;
     const createResult = await listModel.createList(userId, listTitle);
     if (!createResult) {
       return res.json({ Status: false, message: '新增清單失敗' });
@@ -25,6 +26,7 @@ async function createToDoList(req, res) {
 //更新清單
 async function updatedToDoList(req, res) {
   const { listId, listTitle } = req.body;
+  const userId = req.user;
 
   if (isNaN(listId) || typeof listId === 'string') {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
@@ -33,7 +35,7 @@ async function updatedToDoList(req, res) {
     return res.json({ Status: false, message: '更新清單輸入不得為空' });
   }
   try {
-    const userId = tools.verifyToken(req.session.token).userId;
+    // const userId = tools.verifyToken(req.session.token).userId;
     const isParty = await listModel.checkIsParty(userId, listId);
     if (!isParty) {
       return res.status(200).json({ Status: false, message: '無此清單' });
@@ -76,6 +78,7 @@ async function readToDoList(req, res) {
     if (!listData) {
       return res.json({ Status: false, message: '重新確認目標頁' });
     }
+    console.log(listData);
     const list = await listData.rows;
     const nowPage = await listData.desirePpage;
     const totlePage = await listData.totalPage;
@@ -95,13 +98,13 @@ async function readToDoList(req, res) {
 // 刪除清單(含批次)
 async function deleteToDoList(req, res) {
   const listId = req.body.listId;
-
+  const userId = req.user;
   const areAllNumbers = listId.every((item) => typeof item === 'number');
   if (!areAllNumbers || listId.length === 0) {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
   try {
-    const userId = tools.verifyToken(req.session.token).userId;
+    // const userId = tools.verifyToken(req.session.token).userId;
     const isParty = await listModel.checkIsParty(userId, listId[0]);
 
     if (!isParty) {
@@ -124,4 +127,5 @@ module.exports = {
   createToDoList,
   updatedToDoList,
   deleteToDoList,
+  searchToDoList,
 };

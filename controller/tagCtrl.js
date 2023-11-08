@@ -5,7 +5,8 @@ const listModel = require('../model/listModel');
 //取得自己標籤
 async function getMyTiDoTag(req, res) {
   try {
-    const userId = tools.verifyToken(req.session.token).userId;
+    // const userId = tools.verifyToken(req.session.token).userId;
+    const userId = req.user;
     const getToDoTagIds = await tagModel.getTags(userId);
     if (!getToDoTagIds) {
       return res.json({ Status: false, message: '尚無建立標籤' });
@@ -20,6 +21,7 @@ async function getMyTiDoTag(req, res) {
 //新增tag
 async function creatToDoTag(req, res) {
   const { listId, tagContent } = req.body;
+  const userId = req.user;
   if (isNaN(listId) || typeof listId === 'string') {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
@@ -29,7 +31,7 @@ async function creatToDoTag(req, res) {
   }
 
   try {
-    const userId = tools.verifyToken(req.session.token).userId;
+    // const userId = tools.verifyToken(req.session.token).userId;
     const checkPass = await listModel.checkIsParty(userId, listId);
 
     if (!checkPass) {
@@ -79,11 +81,12 @@ async function creatToDoTag(req, res) {
 // 刪除tag
 async function deleteToDoTag(req, res) {
   const tagId = req.body.tagId;
+  const userId = req.user;
   if (isNaN(tagId) || typeof tagId === 'string') {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
   try {
-    const userId = tools.verifyToken(req.session.token).userId;
+    // const userId = tools.verifyToken(req.session.token).userId;
     const isParty = await tagModel.checkTagIsParty(userId, tagId);
     if (!isParty) {
       return res.status(200).json({ Status: false, message: '無此標籤' });
@@ -102,11 +105,12 @@ async function deleteToDoTag(req, res) {
 // 讀取tag相關清單
 async function readToDoTag(req, res) {
   const { tagId, desirePpage, desiredQuantity } = req.body;
+  const userId = req.user;
   if (isNaN(tagId) || typeof tagId === 'string') {
     return res.status(200).json({ Status: false, message: '輸入非正整數型別' });
   }
   try {
-    const userId = tools.verifyToken(req.session.token).userId;
+    // const userId = tools.verifyToken(req.session.token).userId;
     const isParty = await tagModel.checkTagIsParty(userId, tagId);
     if (!isParty) {
       return res.status(200).json({ Status: false, message: '無此標籤' });

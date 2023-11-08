@@ -25,4 +25,5 @@ test_connection();
 
 module.exports = {
   connection,
+  escape: mysql.escape,
 };

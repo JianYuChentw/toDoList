@@ -11,12 +11,25 @@
 			"item": [
 				{
 					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"jwt_token\", pm.response.json().token)",
+									"// pm.globals.set(\"jwt_token\", pm.response.json().token);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n \"account\" :\"newuser1\",\n  \"password\" :\"123456\"\n}",
+							"raw": "{\n \"account\" :\"newuser2\",\n  \"password\" :\"123456\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -34,7 +47,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"account\":\"newuser000\",\n    \"password\":\"123456\"\n}",
+							"raw": "{\n    \"account\":\"newuser2\",\n    \"password\":\"123456\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -47,7 +60,25 @@
 				},
 				{
 					"name": "LogOut",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const resp = pm.response.json();",
+									"pm.environment.set(\"jwt_token\", resp.token)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": ""
+							}
+						},
 						"method": "GET",
 						"header": [],
 						"url": "http://localhost:3000/LogOutMyToDoList"
@@ -61,19 +92,36 @@
 			"item": [
 				{
 					"name": "MyToDoList",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "POST",
 						"header": [
 							{
-								"key": "",
-								"value": "",
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
 								"type": "text",
 								"disabled": true
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"goalPage\":1\n}",
+							"raw": "{\n    \"desirePpage\":1,\n    \"desiredQuantity\":2\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -85,72 +133,25 @@
 					"response": []
 				},
 				{
-					"name": "CreateList",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"title\":\"我是清單7\" \n}\n  ",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": "http://localhost:3000/createMyToDoList"
-					},
-					"response": []
-				},
-				{
-					"name": "RemoveList",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n     \"listId\":[20]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": "http://localhost:3000/removeToDoList"
-					},
-					"response": []
-				},
-				{
-					"name": "UpdateList",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"listId\":21, \n    \"listTitle\":\"被更新測試清單2\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": "http://localhost:3000/updateMyToDoList"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "ItemsFunction",
-			"item": [
-				{
 					"name": "MyToDoItems",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{jwt_token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "",
@@ -181,13 +182,146 @@
 					"response": []
 				},
 				{
-					"name": "CreateItems",
+					"name": "CreateList",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"listId\":11,\n    \"itemsTitle\":\"11項目6\"\n}\n",
+							"raw": "{\n    \"title\":\"我是1的清單3\" \n}\n  ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/createMyToDoList"
+					},
+					"response": []
+				},
+				{
+					"name": "RemoveList",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n     \"listId\":[5]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/removeToDoList"
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateList",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"listId\":23, \n    \"listTitle\":\"被更新測試清單1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/updateMyToDoList"
+					},
+					"response": []
+				},
+				{
+					"name": "searchList",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"index\":\"清\",\n    \"desirePpage\":1,\n    \"desiredQuantity\":10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/searchMyToDoList"
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": {
+					"token": "{{jwt_token}}"
+				}
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "ItemsFunction",
+			"item": [
+				{
+					"name": "CreateItems",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"listId\":26,\n    \"itemsTitle\":\"這是項目5\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -201,11 +335,17 @@
 				{
 					"name": "UpdateItems",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"itemsTitle\":\"被更新的項目\",\n     \"itemsId\":23\n}",
+							"raw": "{\n    \"itemsTitle\":\"被更新的項目\",\n     \"itemsId\":24\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -219,11 +359,17 @@
 				{
 					"name": "RemoveItems",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "DELETE",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"itemsId\":18\n}",
+							"raw": "{\n    \"itemsId\":25\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -237,11 +383,17 @@
 				{
 					"name": "iTemsOrderMove",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"itemsId\":21,\n    \"sortOrder\":5\n}",
+							"raw": "{\n    \"itemsId\":25,\n    \"sortOrder\":1\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -255,11 +407,17 @@
 				{
 					"name": "updateSchedule",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{ \n    \"itemsId\":\"\"\n  }",
+							"raw": "{ \n    \"itemsId\":26\n  }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -278,11 +436,17 @@
 				{
 					"name": "CreateTag",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"listId\":4,\n    \"tagContent\":\"這是tag2\"\n}",
+							"raw": "{\n    \"listId\":1,\n    \"tagContent\":\"這是tag1\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -296,11 +460,17 @@
 				{
 					"name": "DeleteTag",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "DELETE",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"tagId\" :7\n}",
+							"raw": "{\n  \"tagId\" :4\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -314,11 +484,17 @@
 				{
 					"name": "ReadTagList",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"tagId\":7,\n    \"desirePpage\":1,\n    \"desiredQuantity\":1\n    \n}",
+							"raw": "{\n    \"tagId\":1,\n    \"desirePpage\":1,\n    \"desiredQuantity\":10\n    \n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -332,6 +508,12 @@
 				{
 					"name": "getMyTag",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{jwt_token}}"
+							}
+						},
 						"method": "GET",
 						"header": [],
 						"url": "http://localhost:3000/getMyToDoTag"
@@ -339,6 +521,26 @@
 					"response": []
 				}
 			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
 		}
 	]
 }
