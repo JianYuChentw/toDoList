@@ -11,18 +11,19 @@ async function createToDoList(req, res) {
 
   try {
     if (listTitle === null || listTitle.length === 0) {
-      ErrorResponseResult = { Status: false, message: '清單輸入不得為空' };
       throw new Error('清單輸入不得為空');
     }
     const createResult = await listModel.createList(userId, listTitle);
     if (!createResult) {
-      ErrorResponseResult = { Status: false, message: '新增清單失敗' };
       throw new Error('新增清單失敗');
     }
     return res.status(200).json({ Status: true, message: '新增清單成功' });
   } catch (error) {
     console.error('伺服器錯誤:', error);
-    return res.status(500).json(ErrorResponseResult);
+    return res.status(500).json({
+      Status: ErrorResponseResult.Status,
+      Message: error.message || ErrorResponseResult.message,
+    });
   }
 }
 
@@ -35,28 +36,27 @@ async function updatedToDoList(req, res) {
 
   try {
     if (isNaN(listId) || typeof listId === 'string') {
-      ErrorResponseResult = { Status: true, message: '輸入非正整數型別' };
       throw new Error('輸入非正整數型別');
     }
     if (listTitle === null || listTitle.length === 0) {
-      ErrorResponseResult = { Status: true, message: '更新清單輸入不得為空' };
       throw new Error('更新清單輸入不得為空');
     }
 
     const isParty = await listModel.checkIsParty(userId, listId);
     if (!isParty) {
-      ErrorResponseResult = { Status: true, message: '無此清單' };
       throw new Error('無此清單');
     }
     const canUpdateResult = await listModel.updatedList(listId, listTitle);
     if (!canUpdateResult) {
-      ErrorResponseResult = { Status: true, message: '更新清單成功' };
       throw new Error('更新清單失敗');
     }
     return res.status(200).json({ Status: true, message: '更新清單成功' });
   } catch (error) {
     console.error('更新清單失敗:', error);
-    return res.status(500).json(ErrorResponseResult);
+    return res.status(500).json({
+      Status: ErrorResponseResult.Status,
+      Message: error.message || ErrorResponseResult.message,
+    });
   }
 }
 
@@ -69,13 +69,22 @@ async function searchToDoList(req, res) {
 
   try {
     if (index === null || index.length === 0) {
-      ErrorResponseResult = { Status: false, message: '更新清單輸入不得為空' };
       throw new Error('更新清單輸入不得為空');
+    }
+
+    if (
+      isNaN(desirePpage) ||
+      typeof desirePpage !== 'number' ||
+      desirePpage == 0 ||
+      isNaN(desiredQuantity) ||
+      typeof desiredQuantity !== 'number' ||
+      desiredQuantity == 0
+    ) {
+      throw new Error('輸入非正整數型別');
     }
 
     const lists = await listModel.listFuzzySearch(userId, index);
     if (lists === null) {
-      ErrorResponseResult = { Status: false, message: '無相關清單' };
       throw new Error('無相關清單');
     }
 
@@ -85,7 +94,6 @@ async function searchToDoList(req, res) {
       desiredQuantity
     );
     if (!getList) {
-      ErrorResponseResult = { Status: false, message: '輸入內容有誤' };
       throw new Error('輸入內容有誤');
     }
 
@@ -97,7 +105,10 @@ async function searchToDoList(req, res) {
     });
   } catch (error) {
     console.error('更新清單失敗:', error);
-    return res.status(500).json(ErrorResponseResult);
+    return res.status(500).json({
+      Status: ErrorResponseResult.Status,
+      Message: error.message || ErrorResponseResult.message,
+    });
   }
 }
 
@@ -112,10 +123,11 @@ async function readToDoList(req, res) {
     if (
       isNaN(desirePpage) ||
       typeof desirePpage !== 'number' ||
+      desirePpage == 0 ||
       isNaN(desiredQuantity) ||
-      typeof desiredQuantity !== 'number'
+      typeof desiredQuantity !== 'number' ||
+      desiredQuantity == 0
     ) {
-      ErrorResponseResult = { Status: false, message: '輸入非正整數型別' };
       throw new Error('輸入非正整數型別');
     }
     //要加入讀取資料
@@ -126,7 +138,6 @@ async function readToDoList(req, res) {
     );
     const userTag = await tagModel.getTags(userId);
     if (!listData) {
-      ErrorResponseResult = { Status: false, message: '重新確認目標頁' };
       throw new Error('重新確認目標頁');
     }
 
@@ -142,7 +153,10 @@ async function readToDoList(req, res) {
     });
   } catch (error) {
     console.error('取得時發生錯誤:', error);
-    return res.status(500).json(ErrorResponseResult);
+    return res.status(500).json({
+      Status: ErrorResponseResult.Status,
+      Message: error.message || ErrorResponseResult.message,
+    });
   }
 }
 
@@ -156,26 +170,26 @@ async function deleteToDoList(req, res) {
   try {
     const areAllNumbers = listId.every((item) => typeof item === 'number');
     if (!areAllNumbers || listId.length === 0) {
-      ErrorResponseResult = { Status: false, message: '輸入非正整數型別' };
       throw new Error('輸入非正整數型別');
     }
 
     const isParty = await listModel.checkIsParty(userId, listId[0]);
     if (!isParty) {
-      ErrorResponseResult = { Status: false, message: '無此清單' };
       throw new Error('無此清單');
     }
 
     const canDeleteList = await listModel.deleteLists(listId);
     if (!canDeleteList) {
-      ErrorResponseResult = { Status: false, message: '刪除清單失敗' };
       throw new Error('刪除清單失敗');
     }
 
     return res.status(200).json({ Status: true, message: '刪除清單成功' });
   } catch (error) {
     console.error('刪除清單失敗:', error);
-    return res.status(500).json(ErrorResponseResult);
+    return res.status(500).json({
+      Status: ErrorResponseResult.Status,
+      Message: error.message || ErrorResponseResult.message,
+    });
   }
 }
 
