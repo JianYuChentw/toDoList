@@ -216,7 +216,7 @@ async function updateSortOrder(id, newSortOrder) {
     }
     console.log(
       `\u001b[33m`,
-      `執行${id}更換至應${newSortOrder}順位`,
+      `執行${id}更換至第${newSortOrder}順位`,
       `\u001b[37m`
     );
     // 更新目標序
