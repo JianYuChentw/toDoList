@@ -50,6 +50,7 @@ function logOut(req, res) {
   res.json({ loginStatus: false, message: '登出成功', token: 'yorAreLogOut' });
 }
 
+//master
 module.exports = {
   login,
   logOut,
