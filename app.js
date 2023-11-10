@@ -26,7 +26,6 @@ app.use((err, req, res, next) => {
     console.log('無法解析內容', err);
     return res.status(400).json({ Status: false, error: '無法解析內容' });
   }
-  next();
 });
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}/MyToDoList`);
