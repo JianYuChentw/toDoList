@@ -9,6 +9,10 @@ async function login(req, res) {
     const chekMemberResult = await userModel.checkIsMember(account, password);
     if (!chekMemberResult.success) {
       console.log('帳號或密碼有誤！');
+      ErrorResponseResult = {
+        Status: false,
+        message: '登入失敗,帳號或密碼有誤！',
+      };
       throw new Error('登入失敗,帳號或密碼有誤！');
     }
     ///給與權限動作
@@ -23,10 +27,7 @@ async function login(req, res) {
     });
   } catch (error) {
     console.error('失敗:', error);
-    return res.status(500).json({
-      Status: ErrorResponseResult.Status,
-      Message: error.message || ErrorResponseResult.message,
-    });
+    return res.status(500).json(ErrorResponseResult);
   }
 }
 
@@ -37,15 +38,13 @@ async function register(req, res) {
   try {
     const isUserRepeat = await userModel.userIsRepeat(account);
     if (isUserRepeat) {
+      ErrorResponseResult = { Status: false, message: '帳號已存在' };
       throw new Error('帳號已存在');
     }
     await userModel.createUser(account, password);
     return res.json({ Status: true, message: '註冊成功' });
   } catch (error) {
-    return res.status(500).json({
-      Status: ErrorResponseResult.Status,
-      Message: error.message || ErrorResponseResult.message,
-    });
+    return res.status(500).json(ErrorResponseResult);
   }
 }
 
@@ -55,7 +54,6 @@ function logOut(req, res) {
   res.json({ loginStatus: false, message: '登出成功', token: 'yorAreLogOut' });
 }
 
-//master
 module.exports = {
   login,
   logOut,
