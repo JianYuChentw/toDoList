@@ -121,7 +121,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"desirePpage\":1,\n    \"desiredQuantity\":2\n}",
+							"raw": "{\n    \"desirePpage\":1,\n    \"desiredQuantity\":10\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -345,7 +345,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"itemsTitle\":\"被更新的項目\",\n     \"itemsId\":24\n}",
+							"raw": "{\n    \"itemsTitle\":\"被更新的項目123\",\n     \"itemsId\":9\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -446,7 +446,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"listId\":1,\n    \"tagContent\":\"這是tag1\"\n}",
+							"raw": "{\n    \"listId\":7,\n    \"tagContent\":\"這是tag2\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
